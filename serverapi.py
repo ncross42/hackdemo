@@ -127,6 +127,29 @@ def voting():
 
 @app.route('/hier_json/')
 def hier_json(bJson=True):
+    user_by_parent = {"max_level":2}
+    try:
+        c = g.db.cursor()
+        for level in [0,1,2] :
+            sql = 'SELECT parent, gr_name, name, user_id FROM user WHERE level=%d' % level
+            c.execute(sql)
+            rows = c.fetchall()
+            for row in rows :
+                parent = row[0]
+                tmp = {'level':level,'team':row[1],'name':row[2],'user_id':row[3]}
+                if parent in user_by_parent :
+                    user_by_parent[parent].append(tmp)
+                else :
+                    user_by_parent[parent] = [tmp]
+    except sqlite3.Error as e:
+        return "An DB error occurred:", e.args[0]
+    if bJson :
+        return json.dumps(user_by_parent).decode('unicode-escape').encode('utf8')
+    else :
+        return user_by_parent
+
+@app.route('/hier_json2/')
+def hier_json2(bJson=True):
     data = [];
     try:
         c = g.db.cursor()
@@ -145,7 +168,6 @@ def hier_json(bJson=True):
             data.append ( user_by_parent )
     except sqlite3.Error as e:
         return "An DB error occurred:", e.args[0]
-
     if bJson :
         return json.dumps(data).decode('unicode-escape').encode('utf8')
     else :
