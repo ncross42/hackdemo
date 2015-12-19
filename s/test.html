@@ -12,13 +12,16 @@
 <script src="js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
+
+h2 { text-align: center; }
 #hier div {
-      margin-left: 1em;
-      border-left: 1px solid black;
-    display: none;
+	margin-left: 1em;
+	border-left: 1px solid black;
+	display: none;
 }
 #table { border-collapse: collapse; border }
 #table td { border: 1px solid black; }
+
 </style>
 <script lang="javascript">
 function log(str) {
@@ -35,8 +38,8 @@ function initTimer() {
 }
 
 function updateResultTables() {
-	var old_results = { "1": 0, "-1": 0 };
-	var new_results = { "1": 0, "-1": 0 };
+	var old_results = { "1": 0, "-1": 0, "0": 0 };
+	var new_results = { "1": 0, "-1": 0, "0": 0 };
 	var old_total = 0;
 	var new_total = 0;
 	$.each(votes, function(i, v) {
@@ -48,19 +51,33 @@ function updateResultTables() {
 			new_results[k] += 1;
 			new_total += 1;
 		});
-	log("old: " + old_results["1"] + " vs " + old_results["-1"]);
-	log("new: " + new_results["1"] + " vs " + new_results["-1"]);
-	var oldv1_ratio = (old_results["1"] / old_total * 100)
-	var oldv2_ratio = (old_results["-1"] / old_total * 100)
-	var newv1_ratio = (new_results["1"] / new_total * 100)
-	var newv2_ratio = (new_results["-1"] / new_total * 100)
-	$("#old_result td.c1").width(oldv1_ratio + "%");
-	$("#new_result td.c1").width(newv1_ratio + "%");
-	$("#old_result td.c1").text(old_results["1"] + "(" + oldv1_ratio + "%)");
-	$("#old_result td.c-1").text(old_results["-1"] + "(" + oldv2_ratio + "%)");
-	$("#new_result td.c1").text(new_results["1"] + "(" + newv1_ratio + "%)");
-	$("#new_result td.c-1").text(new_results["-1"] + "(" + newv2_ratio + "%)");
+	log("old: " + old_results["1"] + " vs " + old_results["-1"] + ", gg: " + old_results["0"]);
+	log("new: " + new_results["1"] + " vs " + new_results["-1"] + ", gg: " + new_results["0"]);
+	var old_u_ratio = (old_results["1"] / old_total * 100)
+	var old_n_ratio = (old_results["0"] / old_total * 100)
+	var old_d_ratio = (old_results["-1"] / old_total * 100)
+	var new_u_ratio = (new_results["1"] / new_total * 100)
+	var new_n_ratio = (new_results["0"] / new_total * 100)
+	var new_d_ratio = (new_results["-1"] / new_total * 100)
+	log("old: " + old_u_ratio + " vs " + old_d_ratio);
+	log("new: " + new_u_ratio + " vs " + new_d_ratio);
+	$("#old_result div.cUp").width(old_u_ratio + "%");
+	$("#old_result div.cNeu").width(old_n_ratio + "%");
+	$("#old_result div.cDown").width(old_d_ratio + "%");
+	$("#new_result div.cUp").width(new_u_ratio + "%");
+	$("#new_result div.cNeu").width(new_n_ratio + "%");
+	$("#new_result div.cDown").width(new_d_ratio + "%");
+	$("#old_result div.cUp").text(old_results["1"] + "(" + ratioStr(old_u_ratio) + ")");
+	$("#old_result div.cNeu").text(old_results["0"] + "(" + ratioStr(old_n_ratio) + ")");
+	$("#old_result div.cDown").text(old_results["-1"] + "(" + ratioStr(old_d_ratio) + ")");
+	$("#new_result div.cUp").text(new_results["1"] + "(" + ratioStr(new_u_ratio) + ")");
+	$("#new_result div.cNeu").text(new_results["0"] + "(" + ratioStr(new_n_ratio) + ")");
+	$("#new_result div.cDown").text(new_results["-1"] + "(" + ratioStr(new_d_ratio) + ")");
 
+}
+
+function ratioStr(ratio) {
+	return ("" + ratio).substr(0, 4) + "%";
 }
 
 function updateMainTable() {
@@ -89,84 +106,68 @@ function loadData() {
             })
         
         
-        var president = $("#hier > div");
-        var senior = $("#hier > div > div");
-        var citizen = $("#hier > div > div > div");
-        
-        var presidentCount = president.length;
-        var seniorCount = senior.length;
-        var citizenCount = citizen.length;
-        
-        var senior_leafnums = seniors.length;
+	var president = $("#hier > div");
+	var senior = $("#hier > div > div");
+	var citizen = $("#hier > div > div > div");
+	
+	var presidentCount = president.length;
+	var seniorCount = senior.length;
+	var citizenCount = citizen.length;
+	
+	var senior_leafnums = seniors.length;
 
-        var presidentColspan;
-        var seniorColspan = [];
-        $.each(president, function(index, value) { presidentColspan=$(value).find(".citizen").length; });
-        $.each(senior, function(index, value) { seniorColspan[index]=$(value).find(".citizen").length; });
-        
-        console.log("presidentColspan: " + presidentColspan);
-        console.log("seniorColspan: " + seniorColspan);
-        
-        var trNum = [];
-        trNum[0] = presidentCount;
-        trNum[1] = seniorCount;
-        trNum[2] = citizenCount;
-        
-        var maxLevel = 0;
-        $.each($("#hier div"), function(i, v) {
-            v._colspan = $(v).find("div:not(:has(>div))").length;
-            v._level = 0;
-            var cur = $(v);
-            while (cur.is("div.citizen")) {
-                v._level += 1;
-                cur = cur.parent();
-            }
-            if (maxLevel < v._level) maxLevel = v._level;
-            log(v._level + ", " + v._colspan);
-            $(v).attr("_level", v._level);
-            $(v).attr("_colspan", v._colspan);
-        });
-        
-        
-        var table = document.getElementById("table");
-        
-        var depth = $(".citizen").parents("*").not("body,html").size();
-        log("depth: " + maxLevel);
-        for(var i = 0; i < maxLevel; i++) {
-            
-            cols = $("#hier").find("div[_level="+(i+1)+"]");
-            
-            var row = table.insertRow(i);
-            
-            for(var j = 0; j < cols.length; j++) {
-                var cell = $(row.insertCell(j));
-                var name = $(cols[j]).find(">span").text();
-                cell.text(name);
-                cell.attr("colspan", cols[j]._colspan);
-                cell.attr("citizen_name", cols[j].name)
-            }
-            
-        }
-        
-        var trPresident = $("#table > tr > td");
-        var trSenior = []
-        trSenior = $("#table > tr > tr > td");
-
-            
-            
-//         for(var i = 0; i < 4; i++) {
-            
-//             $("#table").html("<tr>"+
-            
-//             for(var j = 0; j < trNum[i]; j++) {
-//                 "<td></td>"
-//             }
-            
-//             +"</tr>");
-//         }
-
-    
-    
+	var presidentColspan;
+	var seniorColspan = [];
+	$.each(president, function(index, value) { presidentColspan=$(value).find(".citizen").length; });
+	$.each(senior, function(index, value) { seniorColspan[index]=$(value).find(".citizen").length; });
+	
+	console.log("presidentColspan: " + presidentColspan);
+	console.log("seniorColspan: " + seniorColspan);
+	
+	var trNum = [];
+	trNum[0] = presidentCount;
+	trNum[1] = seniorCount;
+	trNum[2] = citizenCount;
+	
+	var maxLevel = 0;
+	$.each($("#hier div"), function(i, v) {
+		v._colspan = $(v).find("div:not(:has(>div))").length;
+		v._level = 0;
+		var cur = $(v);
+		while (cur.is("div.citizen")) {
+			v._level += 1;
+			cur = cur.parent();
+		}
+		if (maxLevel < v._level) maxLevel = v._level;
+		log(v._level + ", " + v._colspan);
+		$(v).attr("_level", v._level);
+		$(v).attr("_colspan", v._colspan);
+	});
+	
+	
+	var table = document.getElementById("table");
+	
+	var depth = $(".citizen").parents("*").not("body,html").size();
+	log("depth: " + maxLevel);
+	for(var i = 0; i < maxLevel; i++) {
+		
+		cols = $("#hier").find("div[_level="+(i+1)+"]");
+		
+		var row = table.insertRow(i);
+		
+		for(var j = 0; j < cols.length; j++) {
+			var cell = $(row.insertCell(j));
+			var name = $(cols[j]).find(">span").text();
+			cell.text(name);
+			cell.attr("colspan", cols[j]._colspan);
+			cell.attr("citizen_name", cols[j].name)
+		}
+		
+	}
+	
+	var trPresident = $("#table > tr > td");
+	var trSenior = []
+	trSenior = $("#table > tr > tr > td");
     
     log("leafnums: " + seniorLeafNums)
 }
@@ -174,7 +175,7 @@ function loadData() {
 $(document).ready(function() {
         loadData();
         initTimer();
-        $("form input[name=vote]:radio").change(function() {
+        $("form li.btn").click(function() {
                 var votedValue = this.value;
                 $.get("./voting", { name: "asdf", subject: "subj", value: this.value })
                 .done(function(data) {
@@ -189,29 +190,29 @@ $(document).ready(function() {
 </head>
 <body>
 <input type="hidden" name="myName" value="시민3" />
-<div id="old_result">
+<div id="old_result" class="result_chart">
 	<style>
-		#result_current td { border: 1px solid black; }	
+		.result_chart div.chart { border: 1px solid black; font-weight: bolder; color: white; }	
+		.result_chart div.chart > div { height: 2em; text-align: right; }	
+		.result_chart div.cUp { background-color: blue; }	
+		.result_chart div.cDown { background-color: red; text-align: right; }	
+		.result_chart div.cNeu { background-color: gray; text-align: right; color: black; }	
+		.result_chart h2 { text-align: center; }
 	</style>
-	<div>기존 방식 투표 결과</div>
-	<table style="width: 100%">
-		<tr>
-			<td class="c1">a</td>
-			<td class="c-1">b</td>
-		</tr>
-	</table>
+	<h2>기존 방식 투표 결과</h2>
+	<div class="chart">
+		<div class="cUp"></div>
+		<div class="cDown"></div>
+		<div class="cNeu"></div>
+	</div>
 </div>
-<div id="new_result">
-	<style>
-		#result_new td { border: 1px solid black; }	
-	</style>
-	<div>Do Balance! (균형 직접 민주주의) 결과</div>
-	<table style="width: 100%">
-		<tr>
-			<td class="c1">c</td>
-			<td class="c-1">d</td>
-		</tr>
-	</table>
+<div id="new_result" class="result_chart">
+	<h2>Do Balance! (균형 직접 민주주의) 결과</h2>
+	<div class="chart">
+		<div class="cUp"></div>
+		<div class="cDown"></div>
+		<div class="cNeu"></div>
+	</div>
 </div>
 <div id="hier">
     <div class="citizen">
@@ -237,17 +238,24 @@ $(document).ready(function() {
     </div>
 
 </div>
-<div id="hierdisp" class="container-fluid">
-    <table id="table"></table>
-</div>
 <div id="voting">
+	<style>
+		#voting li { display: inline; }
+		#voting ul { text-align: center; padding-left: 0; }
+
+	</style>
     <form>
-        <div>투표하기: </div>
+        <h2>투표하기</h2>
         <ul>
-            <li> <input type="radio" name="vote" value="1"> v1 </input> </li>
-            <li> <input type="radio" name="vote" value="-1"> v2 </input> </li>
+            <li class="icon-thumbs-up btn btn-primary btn-lg" value="1"> 찬성 </li>
+            <li class="icon-pause btn btn-default btn-lg" value="0"> 기권 </li>
+            <li class="icon-thumbs-down btn btn-danger btn-lg" value="-1"> 반대 </li>
         </ul>
     </form>
+</div>
+<h2>Do Balance! 식 의사 결정 구조</h2>
+<div id="hierdisp" class="container-fluid">
+    <table id="table" class="table"></table>
 </div>
 </body>
 </html>
