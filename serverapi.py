@@ -1,15 +1,15 @@
 #-*- coding: utf-8 -*-
 import sqlite3
-import logging
-from logging.handlers import RotatingFileHandler
+#import logging
+#from logging.handlers import RotatingFileHandler
 
 from flask import Flask
 from flask import g
 from flask import request
-from flask import Markup
+#from flask import Markup
 app = Flask(__name__)
 
-DATABASE = '/Users/dididy/hello.db'
+DATABASE = 'db.sqlite'
 
 def connect_db():
     return sqlite3.connect(DATABASE)
@@ -18,10 +18,10 @@ def connect_db():
 def before_request():
     g.db = connect_db()
 
-@app.after_request
-def after_request(response):
-    g.db.close()
-    return response
+#@app.after_request
+#def after_request(response):
+#    g.db.close()
+#    return response
 
 @app.route('/echo/')
 def echo():
