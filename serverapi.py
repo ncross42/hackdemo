@@ -19,10 +19,10 @@ def connect_db():
 def before_request():
     g.db = connect_db()
 
-#@app.after_request
-#def after_request(response):
-#    g.db.close()
-#    return response
+@app.after_request
+def after_request(response):
+    g.db.close()
+    return response
 
 @app.route('/echo/')
 def echo():
@@ -30,14 +30,36 @@ def echo():
 @app.route('/')
 def index():
     return 'Hello World'
-@app.route('/something/')
-def something():
-    return 'something'
-@app.route('/voting/')
 @app.route('/voting/<name>,')
 def user_id():
     return '유저'
     return '안건'
+@app.route('/get_hier/')
+def get_hier():
+    return """
+<div id="hier">
+    <div class="citizen">
+        <span>이희원</span>
+        <div class="citizen">
+            <span>대의원1</span>
+            <div class="citizen"><span>시민1</span></div>
+            <div class="citizen"><span>시민2</span></div>
+        </div>
+        <div class="citizen">
+            <span>대의원2</span>
+            <div class="citizen"><span>시민3</span></div>
+            <div class="citizen"><span>시민4</span></div>
+            <div class="citizen"><span>시민5</span></div>
+            <div class="citizen"><span>시민6</span></div>
+        </div>
+        <div class="citizen">
+            <span>대의원3</span>
+            <div class="citizen"><span>시민7</span></div>
+            <div class="citizen"><span>시민8</span></div>
+            <div class="citizen"><span>시민9</span></div>
+        </div>
+    </div>
+</div>"""
 
 
 
@@ -55,4 +77,4 @@ def handle_static(p):
 
 if __name__ == "__main__":
     app.debug = True
-    app.run()
+    app.run(host='0.0.0.0', port=80)

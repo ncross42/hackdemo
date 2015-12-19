@@ -1,17 +1,17 @@
 {	
 	"votes": [
-		{ "name": "대통령", "value": "v1" },
-		{ "name": "대의원1", "_class": 1, "value": "v1" },
-		{ "name": "대의원2", "_class": 1, "value": "v1" },
-		{ "name": "대의원3", "_class": 1, "value": "v2" },
-		{ "name": "시민1", "value": "v1" },
-		{ "name": "시민2", "value": "v2" },
-		{ "name": "시민3", "value": "v1" },
-		{ "name": "시민4", "value": "v2" },
-		{ "name": "시민5", "value": "v1" },
-		{ "name": "시민6", "value": "v2" },
-		{ "name": "시민7", "value": "v1" },
-		{ "name": "시민8", "value": "v2" },
-		{ "name": "시민9", "value": "v1" }
+		{ "name": "대통령",  "level":"0", "value": "1" },
+		{ "name": "대의원1", "level":"1", "value": "1" },
+		{ "name": "대의원2", "level":"1", "value": "1" },
+		{ "name": "대의원3", "level":"1", "value": "-1" },
+		{ "name": "시민1",   "level":"2", "value": "1" },
+		{ "name": "시민2",   "level":"2", "value": "-1" },
+		{ "name": "시민3",   "level":"2", "value": "1" },
+		{ "name": "시민4",   "level":"2", "value": "-1" },
+		{ "name": "시민5",   "level":"2", "value": "1" },
+		{ "name": "시민6",   "level":"2", "value": "-1" },
+		{ "name": "시민7",   "level":"2", "value": "1" },
+		{ "name": "시민8",   "level":"2", "value": "-1" },
+		{ "name": "시민9",   "level":"2", "value": "1" }
 	]
 }
