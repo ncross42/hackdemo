@@ -3,9 +3,8 @@ import sqlite3
 #import logging
 #from logging.handlers import RotatingFileHandler
 
-from flask import Flask
+from flask import Flask, session, redirect, url_for, escape, request
 from flask import g
-from flask import request
 from flask import send_from_directory
 #from flask import Markup
 app = Flask(__name__, static_url_path='')
@@ -24,16 +23,16 @@ def after_request(response):
     g.db.close()
     return response
 
-@app.route('/echo/')
-def echo():
-    return "You said: " + request.args.get('text', '')
 @app.route('/')
 def index():
     return 'Hello World'
-@app.route('/voting/<name>,')
-def user_id():
-    return '유저'
-    return '안건'
+@app.route('/voted_list/')
+def voted_list():
+    return ""
+@app.route('/voting/<name>/<value>')
+def voting(name,value):
+
+    return "name:" + name + ", value:" + value
 @app.route('/get_hier/')
 def get_hier():
     return """
