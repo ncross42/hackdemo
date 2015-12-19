@@ -46,20 +46,24 @@ h2 { text-align: center; }
 	color: red;
 }
 
+.result_chart div.chart { border: 1px solid black; font-weight: bolder; color: white; }
+.result_chart div.chart > div { height: 2em; text-align: right; }
+.result_chart div.cUp { background-color: blue; }
+.result_chart div.cDown { background-color: red; text-align: right; }
+.result_chart div.cNeu { background-color: gray; text-align: right; color: black; }
+.result_chart h2 { text-align: center; }
+
+#voting li { display: inline; }
+#voting ul { text-align: center; padding-left: 0; }
+
+form { text-align: center; }
+
 </style>
 <script lang="javascript" src="/s/test.js" ></script>
 </head>
 <body>
 <input type="hidden" id="vote_subject" value="subj" />
 <div id="old_result" class="result_chart">
-	<style>
-		.result_chart div.chart { border: 1px solid black; font-weight: bolder; color: white; }
-		.result_chart div.chart > div { height: 2em; text-align: right; }
-		.result_chart div.cUp { background-color: blue; }
-		.result_chart div.cDown { background-color: red; text-align: right; }
-		.result_chart div.cNeu { background-color: gray; text-align: right; color: black; }
-		.result_chart h2 { text-align: center; }
-	</style>
 	<h2>기존 방식 투표 결과</h2>
 	<div class="chart">
 		<div class="cUp"></div>
@@ -75,62 +79,9 @@ h2 { text-align: center; }
 		<div class="cNeu"></div>
 	</div>
 </div>
-<div id="hier">
-    <div class="citizen">
-        <span>대표자</span>
-        <div class="citizen">
-            <span>장유정</span>
-            <div class="citizen"><span>김진곤</span></div>
-            <div class="citizen"><span>장시영</span></div>
-            <div class="citizen"><span>봉주영</span></div>
-            <div class="citizen"><span>김세진</span></div>
-            <div class="citizen"><span>윤종민</span></div>
-            <div class="citizen"><span>안규태</span></div>
-        </div>
-        <div class="citizen">
-            <span>안창현</span>
-            <div class="citizen"><span>김연주</span></div>
-            <div class="citizen"><span>김용현</span></div>
-            <div class="citizen"><span>최지원</span></div>
-            <div class="citizen"><span>우영주</span></div>
-            <div class="citizen"><span>정수민</span></div>
-        </div>
-        <div class="citizen">
-            <span>노상범</span>
-            <div class="citizen"><span>구하나</span></div>
-            <div class="citizen"><span>정진아</span></div>
-            <div class="citizen"><span>박은환</span></div>
-            <div class="citizen"><span>박수영</span></div>
-            <div class="citizen"><span>최병훈</span></div>
-        </div>
-        <div class="citizen">
-            <span>우정범</span>
-            <div class="citizen"><span>박송원</span></div>
-            <div class="citizen"><span>정한별</span></div>
-            <div class="citizen"><span>이홍주</span></div>
-        </div>
-        <div class="citizen">
-            <span>이희원</span>
-            <div class="citizen"><span>이용재</span></div>
-            <div class="citizen"><span>임익재</span></div>
-            <div class="citizen"><span>황원근</span></div>
-        </div>
-        <div class="citizen">
-            <span>오상택</span>
-            <div class="citizen"><span>임춘봉</span></div>
-            <div class="citizen"><span>안영희</span></div>
-            <div class="citizen"><span>김도영</span></div>
-        </div>
-    </div>
-</div>
 <div id="voting">
-	<style>
-		#voting li { display: inline; }
-		#voting ul { text-align: center; padding-left: 0; }
-
-	</style>
     <h2>투표하기</h2>
-    <form class="form-inline" style="text-align: center">
+    <form class="form-inline">
         <div class="form-group">
             <label class="sr-only">이름</label>
             <select class="form-control" id="voter_name"></select>
