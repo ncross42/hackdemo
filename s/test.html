@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+<script src="js/jquery-1.11.3.min.js"></script>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<!-- Optional theme -->
+<link rel="stylesheet" href="css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+<!-- Latest compiled and minified JavaScript -->
+<script src="js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+#hier div {
+      margin-left: 1em;
+      border-left: 1px solid black;
+    display: none;
+}
+#table { border-collapse: collapse; border }
+#table td { border: 1px solid black; }
+</style>
+<script lang="javascript">
+function log(str) {
+    console.log(str);
+}
+
+var allLeafNum;
+var seniorLeafNums = [];
+
+var votes = {};
+
+function initTimer() {
+    updateMainTable();
+}
+
+function updateResultTables() {
+	var old_results = { "v1": 0, "v2": 0 };
+	var new_results = { "v1": 0, "v2": 0 };
+	var total = 0;
+	$.each(votes, function(i, v) {
+			if (v._class && v._class == 1)
+				old_results[v.value] += 1;
+			new_results[v.value] += 1;
+			total += 1;
+		});
+	log("old: " + old_results["v1"] + " vs " + old_results["v2"]);
+	log("new: " + new_results["v1"] + " vs " + new_results["v2"]);
+
+
+}
+
+function updateMainTable() {
+	log("updateMainTable called");
+    $.getJSON('./votedlist.json', function(data) {
+                log("votedlist get success");    
+                votes = data.votes;
+				updateResultTables();
+                $.each(votes, function(i, v) {
+                    // log(v.name + " voted for " + v.value);
+                    // update td elements here
+                    });
+            });
+
+
+    // call this method repeatedly.
+	setTimeout(updateMainTable, 3000);
+}
+
+function loadData() {
+    allLeafNum = $("#hier > div > div > div").length;
+    var seniors = $("#hier > div > div");
+    //       var senior_leafnums = [];
+    $.each(seniors, function(i, v) { 
+            seniorLeafNums[i]=$(v).find("div").length; 
+            })
+        
+        
+        var president = $("#hier > div");
+        var senior = $("#hier > div > div");
+        var citizen = $("#hier > div > div > div");
+        
+        var presidentCount = president.length;
+        var seniorCount = senior.length;
+        var citizenCount = citizen.length;
+        
+        var senior_leafnums = seniors.length;
+
+        var presidentColspan;
+        var seniorColspan = [];
+        $.each(president, function(index, value) { presidentColspan=$(value).find(".citizen").length; });
+        $.each(senior, function(index, value) { seniorColspan[index]=$(value).find(".citizen").length; });
+        
+        console.log("presidentColspan: " + presidentColspan);
+        console.log("seniorColspan: " + seniorColspan);
+        
+        var trNum = [];
+        trNum[0] = presidentCount;
+        trNum[1] = seniorCount;
+        trNum[2] = citizenCount;
+        
+        var maxLevel = 0;
+        $.each($("#hier div"), function(i, v) {
+            v._colspan = $(v).find("div:not(:has(>div))").length;
+            v._level = 0;
+            var cur = $(v);
+            while (cur.is("div.citizen")) {
+                v._level += 1;
+                cur = cur.parent();
+            }
+            if (maxLevel < v._level) maxLevel = v._level;
+            log(v._level + ", " + v._colspan);
+            $(v).attr("_level", v._level);
+            $(v).attr("_colspan", v._colspan);
+        });
+        
+        
+        var table = document.getElementById("table");
+        
+        var depth = $(".citizen").parents("*").not("body,html").size();
+        log("depth: " + maxLevel);
+        for(var i = 0; i < maxLevel; i++) {
+            
+            cols = $("#hier").find("div[_level="+(i+1)+"]");
+            
+            var row = table.insertRow(i);
+            
+            for(var j = 0; j < cols.length; j++) {
+                var cell = $(row.insertCell(j));
+                var name = $(cols[j]).find(">span").text();
+                cell.text(name);
+                cell.attr("colspan", cols[j]._colspan);
+                cell.attr("citizen_name", cols[j].name)
+            }
+            
+        }
+        
+        var trPresident = $("#table > tr > td");
+        var trSenior = []
+        trSenior = $("#table > tr > tr > td");
+
+            
+            
+//         for(var i = 0; i < 4; i++) {
+            
+//             $("#table").html("<tr>"+
+            
+//             for(var j = 0; j < trNum[i]; j++) {
+//                 "<td></td>"
+//             }
+            
+//             +"</tr>");
+//         }
+
+    
+    
+    
+    log("leafnums: " + seniorLeafNums)
+}
+
+$(document).ready(function() {
+        loadData();
+        initTimer();
+        $("form input[name=vote]:radio").change(function() {
+                var votedValue = this.value;
+                $.get("./voting", { name: "asdf", subject: "subj", value: this.value })
+                .done(function(data) {
+                        log("voting succeeded for " + votedValue);
+                        updateMainTable();
+                        })
+                ;
+                });
+        });
+
+</script>
+</head>
+<body>
+<input type="hidden" name="myName" value="시민3" />
+<div id="result_current">
+	<style>
+		#result_current td { border: 1px solid black; }	
+	</style>
+	<div>기존 방식 투표 결과</div>
+	<table style="width: 100%">
+		<tr>
+			<td class="v1">a</td>
+			<td class="v2">b</td>
+		</tr>
+	</table>
+</div>
+<div id="result_new">
+	<style>
+		#result_new td { border: 1px solid black; }	
+	</style>
+	<div>Do Balance! (균형 직접 민주주의) 결과</div>
+	<table style="width: 100%">
+		<tr>
+			<td class="v1">c</td>
+			<td class="v2">d</td>
+		</tr>
+	</table>
+</div>
+<div id="hier">
+    <div class="citizen">
+        <span>이희원</span>
+        <div class="citizen">
+            <span>대의원1</span>
+            <div class="citizen"><span>시민1</span></div>
+            <div class="citizen"><span>시민2</span></div>
+        </div>
+        <div class="citizen">
+            <span>대의원2</span>
+            <div class="citizen"><span>시민3</span></div>
+            <div class="citizen"><span>시민4</span></div>
+            <div class="citizen"><span>시민5</span></div>
+            <div class="citizen"><span>시민6</span></div>
+        </div>
+        <div class="citizen">
+            <span>대의원3</span>
+            <div class="citizen"><span>시민7</span></div>
+            <div class="citizen"><span>시민8</span></div>
+            <div class="citizen"><span>시민9</span></div>
+        </div>
+    </div>
+
+</div>
+<div id="hierdisp" class="container-fluid">
+    <table id="table"></table>
+</div>
+<div id="voting">
+    <form>
+        <div>투표하기: </div>
+        <ul>
+            <li> <input type="radio" name="vote" value="v1"> v1 </input> </li>
+            <li> <input type="radio" name="vote" value="v2"> v2 </input> </li>
+        </ul>
+    </form>
+</div>
+</body>
+</html>
