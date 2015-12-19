@@ -35,18 +35,31 @@ function initTimer() {
 }
 
 function updateResultTables() {
-	var old_results = { "v1": 0, "v2": 0 };
-	var new_results = { "v1": 0, "v2": 0 };
-	var total = 0;
+	var old_results = { "1": 0, "-1": 0 };
+	var new_results = { "1": 0, "-1": 0 };
+	var old_total = 0;
+	var new_total = 0;
 	$.each(votes, function(i, v) {
-			if (v._class && v._class == 1)
-				old_results[v.value] += 1;
-			new_results[v.value] += 1;
-			total += 1;
+			k = "" + v.value;
+			if (v.level && v.level == 1) {
+				old_results[k] += 1;
+				old_total += 1;
+			}
+			new_results[k] += 1;
+			new_total += 1;
 		});
-	log("old: " + old_results["v1"] + " vs " + old_results["v2"]);
-	log("new: " + new_results["v1"] + " vs " + new_results["v2"]);
-
+	log("old: " + old_results["1"] + " vs " + old_results["-1"]);
+	log("new: " + new_results["1"] + " vs " + new_results["-1"]);
+	var oldv1_ratio = (old_results["1"] / old_total * 100)
+	var oldv2_ratio = (old_results["-1"] / old_total * 100)
+	var newv1_ratio = (new_results["1"] / new_total * 100)
+	var newv2_ratio = (new_results["-1"] / new_total * 100)
+	$("#old_result td.c1").width(oldv1_ratio + "%");
+	$("#new_result td.c1").width(newv1_ratio + "%");
+	$("#old_result td.c1").text(old_results["1"] + "(" + oldv1_ratio + "%)");
+	$("#old_result td.c-1").text(old_results["-1"] + "(" + oldv2_ratio + "%)");
+	$("#new_result td.c1").text(new_results["1"] + "(" + newv1_ratio + "%)");
+	$("#new_result td.c-1").text(new_results["-1"] + "(" + newv2_ratio + "%)");
 
 }
 
@@ -176,27 +189,27 @@ $(document).ready(function() {
 </head>
 <body>
 <input type="hidden" name="myName" value="시민3" />
-<div id="result_current">
+<div id="old_result">
 	<style>
 		#result_current td { border: 1px solid black; }	
 	</style>
 	<div>기존 방식 투표 결과</div>
 	<table style="width: 100%">
 		<tr>
-			<td class="v1">a</td>
-			<td class="v2">b</td>
+			<td class="c1">a</td>
+			<td class="c-1">b</td>
 		</tr>
 	</table>
 </div>
-<div id="result_new">
+<div id="new_result">
 	<style>
 		#result_new td { border: 1px solid black; }	
 	</style>
 	<div>Do Balance! (균형 직접 민주주의) 결과</div>
 	<table style="width: 100%">
 		<tr>
-			<td class="v1">c</td>
-			<td class="v2">d</td>
+			<td class="c1">c</td>
+			<td class="c-1">d</td>
 		</tr>
 	</table>
 </div>
@@ -231,8 +244,8 @@ $(document).ready(function() {
     <form>
         <div>투표하기: </div>
         <ul>
-            <li> <input type="radio" name="vote" value="v1"> v1 </input> </li>
-            <li> <input type="radio" name="vote" value="v2"> v2 </input> </li>
+            <li> <input type="radio" name="vote" value="1"> v1 </input> </li>
+            <li> <input type="radio" name="vote" value="-1"> v2 </input> </li>
         </ul>
     </form>
 </div>
