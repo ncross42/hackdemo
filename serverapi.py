@@ -28,12 +28,17 @@ def index():
     return 'Hello World'
 @app.route('/voted_list/')
 def voted_list():
-    return ""
+    f = open('s/votedlist.json')
+#    js = json.loads(f.read())
+    str = f.read();
+    f.close()
+    return str
+
 @app.route('/voting/<name>/<value>')
 def voting(name,value):
 
     return "name:" + name + ", value:" + value
-@app.route('/get_hier/')
+@app.route('/get:_hier/')
 def get_hier():
     return """
 <div id="hier">
