@@ -1,7 +1,6 @@
 #-*- coding: utf-8 -*-
 import sqlite3
 import os
-from var_dump import var_dump
 import json
 
 #import logging
@@ -126,20 +125,34 @@ def voting():
         return "An DB error occurred:", e.args[0]
     return ""
 
-@app.route('/hier_html/')
-def get_hier():
-    html = '<div id="hier">'
-
+@app.route('/hier_json/')
+def hier_json(bJson=True):
+    data = [];
     try:
         c = g.db.cursor()
-        sql = 'SELECT level, gr_name, name, user_id FROM user WHERE parent=0' % level
-        c.execute(sql)
-        rows = c.fetchall()
-
+        for level in [0,1,2] :
+            sql = 'SELECT parent, gr_name, name, user_id FROM user WHERE level=%d' % level
+            c.execute(sql)
+            rows = c.fetchall()
+            user_by_parent = {}
+            for row in rows :
+                parent = str(row[0])
+                tmp = {'team':row[1],'name':row[2],'user_id':row[3]}
+                if parent in user_by_parent :
+                    user_by_parent[parent].append(tmp)
+                else :
+                    user_by_parent[parent] = [tmp]
+            data.append ( user_by_parent )
     except sqlite3.Error as e:
         return "An DB error occurred:", e.args[0]
 
-    html += '</div>'
+    if bJson :
+        return json.dumps(data).decode('unicode-escape').encode('utf8')
+    else :
+        return data
+
+@app.route('/hier_html/')
+def hier_html():
 
     return """
 <div id="hier">
