@@ -34,27 +34,38 @@ def voted_list():
     f.close()
     return str
 
-@app.route('/voting/<user_name>/<value>')
-def voting(user_name,value,issue=ISSUE):
+@app.route('/voting/<user>/<value>')
+def voting(user,value,issue=ISSUE):
     new_val = int(value)
     try:
         c = g.db.cursor()
+        # get issue
         c.execute("SELECT issue_id FROM issue WHERE name='%s'" % (issue) )
-        issue_id = c.fetchone()
-        if issue_id == None :
+        row = c.fetchone()
+        if row == None :
             raise Exception('Unkown Issue name : ' + issue )
-        c.execute("SELECT user_id FROM user WHERE name='%s'" % (user_name) )
-        user_id = c.fetchone()
-        if user_id == None :
-            raise Exception('Unkown User name : ' + name )
+        issue_id = row[0]
+        # get user
+        if user.isdigit() :
+            user_id = int(user)
+        else :
+            c.execute("SELECT user_id FROM user WHERE name='%s'" % (user) )
+            row = c.fetchone()
+            if row == None :
+                raise Exception('Unkown user name : ' + user )
+            user_id = row[0]
+        # get old_val
         c.execute("SELECT val FROM vote WHERE issue_id=%d AND user_id=%d" % (issue_id,user_id) )
-        old_val = c.fetchone()
-        if old_val == None :
+        row = c.fetchone()
+        # execute new_val
+        if row == None :
             sql = "INSERT INTO vote (issue_id,user_id,val) VALUES (%d,%d,%d)" % (issue_id,user_id,new_val)
             c.execute(sql)
-        elif new_val != old_val :
-            sql = "UPDATE vote SET val=%d WHERE issue_id=%d AND user_id=%d" % (new_val,issue_id,user_id)
-            c.execute(sql)
+        else :
+            old_val = row[0]
+            if new_val != old_val :
+                sql = "UPDATE vote SET val=%d WHERE issue_id=%d AND user_id=%d" % (new_val,issue_id,user_id)
+                c.execute(sql)
     except sqlite3.Error as e:
         return "An DB error occurred:", e.args[0]
     return ""
@@ -101,7 +112,7 @@ def handle_static(p):
 
 if __name__ == "__main__":
     app.debug = True
-    if 'demo' == os.environ["USER"] :
+    if  os.environ["USER"] in ['root','www-data','demo'] :
         app.run(host='0.0.0.0', port=80)
     else :
         app.run()
