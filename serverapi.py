@@ -1,5 +1,6 @@
 #-*- coding: utf-8 -*-
 import sqlite3
+import os
 #import logging
 #from logging.handlers import RotatingFileHandler
 
@@ -100,5 +101,7 @@ def handle_static(p):
 
 if __name__ == "__main__":
     app.debug = True
-    app.run()
-    #app.run(host='0.0.0.0', port=80)
+    if 'demo' == os.environ["USER"] :
+        app.run(host='0.0.0.0', port=80)
+    else :
+        app.run()
