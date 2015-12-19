@@ -19,23 +19,22 @@ function updateResultTables() {
     var old_total = 0;
     var new_total = 0;
     $.each(votes, function(i, v) {
-        k = "" + v.value;
         if (v.level && v.level == 1) {
-            old_results[k] += 1;
+            old_results[v.value] += 1;
             old_total += 1;
         }
-        new_results[k] += 1;
+        new_results["" + getEffectiveVote(i)] += 1;
         new_total += 1;
     });
     log("old: " + old_results["1"] + " vs " + old_results["-1"] + ", gg: " + old_results["0"]);
     log("new: " + new_results["1"] + " vs " + new_results["-1"] + ", gg: " + new_results["0"]);
-    var old_u_ratio = (old_results["1"] / old_total * 100)
-        var old_n_ratio = (old_results["0"] / old_total * 100)
-        var old_d_ratio = (old_results["-1"] / old_total * 100)
-        var new_u_ratio = (new_results["1"] / new_total * 100)
-        var new_n_ratio = (new_results["0"] / new_total * 100)
-        var new_d_ratio = (new_results["-1"] / new_total * 100)
-        log("old: " + old_u_ratio + " vs " + old_d_ratio);
+    var old_u_ratio = (old_results["1"] / old_total * 100);
+	var old_n_ratio = (old_results["0"] / old_total * 100);
+	var old_d_ratio = (old_results["-1"] / old_total * 100);
+	var new_u_ratio = (new_results["1"] / new_total * 100);
+	var new_n_ratio = (new_results["0"] / new_total * 100);
+	var new_d_ratio = (new_results["-1"] / new_total * 100);
+	log("old: " + old_u_ratio + " vs " + old_d_ratio);
     log("new: " + new_u_ratio + " vs " + new_d_ratio);
     $("#old_result div.cUp").width(old_u_ratio + "%");
     $("#old_result div.cNeu").width(old_n_ratio + "%");
@@ -56,6 +55,17 @@ function ratioStr(ratio) {
     return ("" + ratio).substr(0, 4) + "%";
 }
 
+function getEffectiveVote(user_id) {
+	var pid = user_id;
+	var cnt = 0;
+	while (pid != undefined && pid != 0) {
+		if (votes[pid].value != 0)
+			return votes[pid].value
+		pid = users[pid]._parent;
+	}
+	return 0;
+}
+
 function updateMainTable() {
     log("updateMainTable called");
     $.getJSON('/voted_list/', function(data) {
@@ -67,16 +77,6 @@ function updateMainTable() {
 		});
 		votes = new_votes;
         updateResultTables();
-		function getEffectiveVote(user_id) {
-			var pid = users[user_id]._parent;
-			var cnt = 0;
-			while (pid != undefined && pid != 0) {
-				if (votes[pid].value != 0)
-					return votes[pid].value
-				pid = users[pid]._parent;
-			}
-			return 0;
-		}
 		function clearClass(elem) {
 			$(elem).removeClass("up");
 			$(elem).removeClass("gray");
