@@ -198,7 +198,10 @@ $(document).ready(function() {
                 log("voting succeeded for " + votedValue);
                 updateMainTable();
             })
-        return false;
     });
+	$("#btn_refresh").click(function(event) {
+		event.preventDefault();
+		updateMainTable();
+	});
 });
 

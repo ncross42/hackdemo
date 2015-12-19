@@ -134,13 +134,19 @@ h2 { text-align: center; }
         <div class="form-group">
             <label class="sr-only">이름</label>
             <select class="form-control" id="voter_name"></select>
-            <button class="icon-thumbs-up btn btn-primary btn-lg" value="1"> 찬성 </button>
-            <button class="icon-pause btn btn-default btn-lg" value="0"> 기권 </button>
-            <button class="icon-thumbs-down btn btn-danger btn-lg" value="-1"> 반대 </button>
+			<button class="icon-thumbs-up btn btn-primary btn-lg" value="1">
+				<span class="glyphicon glyphicon-thumbs-up">&nbsp;찬성</span>
+			</button>
+            <button class="icon-pause btn btn-default btn-lg" value="0">
+				<span class="glyphicon glyphicon-pause">&nbsp;기권</span>
+			</button>
+            <button class="icon-thumbs-down btn btn-danger btn-lg" value="-1">
+				<span class="glyphicon glyphicon-thumbs-down">&nbsp;반대</span>
+			</button>
         </div>
     </form>
 </div>
-<h2>Do Balance! 식 의사 결정 구조</h2>
+<h2>Do Balance! 식 의사 결정 구조<button id="btn_refresh" class="btn btn-lg"><span class="glyphicon glyphicon-refresh"/></button></h2>
 <div id="hierdisp" class="container-fluid">
     <table id="table" class="table"></table>
 </div>
