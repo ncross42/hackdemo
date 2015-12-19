@@ -3,11 +3,11 @@ import sqlite3
 #import logging
 #from logging.handlers import RotatingFileHandler
 
-from flask import Flask, session, redirect, url_for, escape, request
+from flask import Flask, session, redirect, url_for, escape, request, render_template
 from flask import g
 from flask import send_from_directory
 #from flask import Markup
-app = Flask(__name__, static_url_path='')
+app = Flask(__name__, static_url_path='', template_folder='t')
 
 DATABASE = 'db.sqlite'
 
@@ -25,7 +25,8 @@ def after_request(response):
 
 @app.route('/')
 def index():
-    return 'Hello World'
+    return render_template("test.html")
+
 @app.route('/voted_list/')
 def voted_list():
     f = open('s/votedlist.json')

@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <title>Insert title here</title>
-<script src="js/jquery-1.11.3.min.js"></script>
+<script src="/s/js/jquery-1.11.3.min.js"></script>
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<link rel="stylesheet" href="/s/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 <!-- Optional theme -->
-<link rel="stylesheet" href="css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+<link rel="stylesheet" href="/s/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 <!-- Latest compiled and minified JavaScript -->
-<script src="js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<script src="/s/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
 
@@ -29,7 +29,6 @@ function log(str) {
 }
 
 var allLeafNum;
-var seniorLeafNums = [];
 
 var votes = {};
 
@@ -82,7 +81,7 @@ function ratioStr(ratio) {
 
 function updateMainTable() {
 	log("updateMainTable called");
-    $.getJSON('./votedlist.json', function(data) {
+    $.getJSON('/voted_list', function(data) {
                 log("votedlist get success");    
                 votes = data.votes;
 				updateResultTables();
@@ -94,17 +93,13 @@ function updateMainTable() {
 
 
     // call this method repeatedly.
-	setTimeout(updateMainTable, 3000);
+	// setTimeout(updateMainTable, 3000);
 }
 
 function loadData() {
+    var names = [];
     allLeafNum = $("#hier > div > div > div").length;
     var seniors = $("#hier > div > div");
-    //       var senior_leafnums = [];
-    $.each(seniors, function(i, v) { 
-            seniorLeafNums[i]=$(v).find("div").length; 
-            })
-        
         
 	var president = $("#hier > div");
 	var senior = $("#hier > div > div");
@@ -139,7 +134,11 @@ function loadData() {
 			cur = cur.parent();
 		}
 		if (maxLevel < v._level) maxLevel = v._level;
-		log(v._level + ", " + v._colspan);
+		// log(v._level + ", " + v._colspan);
+        var name = $(v).find(">span").text();
+        var optionElem = $("<option></option>").text(name);
+        $("#voter_name").append(optionElem);
+            
 		$(v).attr("_level", v._level);
 		$(v).attr("_colspan", v._colspan);
 	});
@@ -165,31 +164,29 @@ function loadData() {
 		
 	}
 	
-	var trPresident = $("#table > tr > td");
-	var trSenior = []
-	trSenior = $("#table > tr > tr > td");
-    
-    log("leafnums: " + seniorLeafNums)
 }
 
 $(document).ready(function() {
         loadData();
         initTimer();
-        $("form li.btn").click(function() {
+        $("form button").click(function(event) {
+                event.preventDefault();
                 var votedValue = this.value;
-                $.get("./voting", { name: "asdf", subject: "subj", value: this.value })
+                var name = $("#voter_name").val();
+                var subj = $("#vote_subject").val();
+                $.get("/voting", { name: name, subject: subj, value: this.value })
                 .done(function(data) {
                         log("voting succeeded for " + votedValue);
                         updateMainTable();
                         })
-                ;
+                return false;
                 });
         });
 
 </script>
 </head>
 <body>
-<input type="hidden" name="myName" value="시민3" />
+<input type="hidden" id="vote_subject" value="subj" />
 <div id="old_result" class="result_chart">
 	<style>
 		.result_chart div.chart { border: 1px solid black; font-weight: bolder; color: white; }	
@@ -244,13 +241,15 @@ $(document).ready(function() {
 		#voting ul { text-align: center; padding-left: 0; }
 
 	</style>
-    <form>
-        <h2>투표하기</h2>
-        <ul>
-            <li class="icon-thumbs-up btn btn-primary btn-lg" value="1"> 찬성 </li>
-            <li class="icon-pause btn btn-default btn-lg" value="0"> 기권 </li>
-            <li class="icon-thumbs-down btn btn-danger btn-lg" value="-1"> 반대 </li>
-        </ul>
+    <h2>투표하기</h2>
+    <form class="form-inline" style="text-align: center">
+        <div class="form-group">
+            <label class="sr-only">이름</label>
+            <select class="form-control" id="voter_name"></select>
+            <button class="icon-thumbs-up btn btn-primary btn-lg" value="1"> 찬성 </button>
+            <button class="icon-pause btn btn-default btn-lg" value="0"> 기권 </button>
+            <button class="icon-thumbs-down btn btn-danger btn-lg" value="-1"> 반대 </button>
+        </div>
     </form>
 </div>
 <h2>Do Balance! 식 의사 결정 구조</h2>
