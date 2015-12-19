@@ -115,13 +115,13 @@ def voting():
         if row is None :
             sql = "INSERT INTO vote (issue_id,user_id,val) VALUES (%d,%d,%d)" % (issue_id,user_id,new_val)
             c.execute(sql)
-            return sql
+            g.db.commit()
         else :
             old_val = row[0]
             if new_val != old_val :
                 sql = "UPDATE vote SET val=%d WHERE issue_id=%d AND user_id=%d" % (new_val,issue_id,user_id)
                 c.execute(sql)
-                return sql
+                g.db.commit()
     except sqlite3.Error as e:
         return "An DB error occurred:", e.args[0]
     return ""
