@@ -59,6 +59,10 @@ def voted_list():
     voted_obj = {}
     try:
         c = g.db.cursor()
+        sql = "SELECT last_vote_dt FROM issue WHERE issue_id = 1"
+        c.execute(sql)
+        row = c.fetchone()
+        voted_obj["0"] = row[0]
         sql = "SELECT user_id, name, level, val FROM vote JOIN user USING (user_id)"
         c.execute(sql)
         rows = c.fetchall()
@@ -104,11 +108,15 @@ def voting():
         if row is None :
             sql = "INSERT INTO vote (issue_id,user_id,val) VALUES (%d,%d,%d)" % (issue_id,user_id,new_val)
             c.execute(sql)
+            sql = "UPDATE issue SET last_vote_dt = DATETIME('now') WHERE issue_id=%d" % (issue_id)
+            c.execute(sql)
             g.db.commit()
         else :
             old_val = row[0]
             if new_val != old_val :
                 sql = "UPDATE vote SET val=%d WHERE issue_id=%d AND user_id=%d" % (new_val,issue_id,user_id)
+                c.execute(sql)
+                sql = "UPDATE issue SET last_vote_dt = DATETIME('now') WHERE issue_id=%d" % (issue_id)
                 c.execute(sql)
                 g.db.commit()
     except sqlite3.Error as e:

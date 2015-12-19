@@ -4,7 +4,7 @@ function log(str) {
 }
 
 var allLeafNum;
-
+var last_voted_dt = '';
 var votes = {};
 
 function initTimer() {
@@ -57,16 +57,22 @@ function ratioStr(ratio) {
 }
 
 function updateMainTable() {
-    log("updateMainTable called");
-    $.getJSON('/voted_list/', function(data) {
-        log("votedlist get success");
-        votes = data;
+	log("updateMainTable called");
+	$.getJSON('/voted_list/', function(data) {
+		log("votedlist get success");
+		if ( ! last_voted_dt || (data["0"] && last_voted_dt<data["0"]) ) {
+			last_voted_dt = data["0"];
+		} else {
+			return;
+		}
+		if ( data["0"] ) delete data["0"];
+		votes = data;
 		new_votes = {};
 		$.each(votes, function(k, v) {
 			new_votes[Number(k)] = v;
 		});
 		votes = new_votes;
-        updateResultTables();
+		updateResultTables();
 		function getEffectiveVote(user_id) {
 			var pid = users[user_id]._parent;
 			var cnt = 0;
@@ -85,10 +91,10 @@ function updateMainTable() {
 			$(elem).removeClass("gray inhr_down");
 		}
 
-        $.each(data, function(i, v) {
+		$.each(data, function(i, v) {
 			var name = name;
-            if(v.value == 1) { 
-                $.each($("#table td[user_id="+i+"]"), function() {
+			if(v.value == 1) { 
+				$.each($("#table td[user_id="+i+"]"), function() {
 					clearClass(this);
 					$(this).addClass("up");
 				});
@@ -107,10 +113,10 @@ function updateMainTable() {
 					clearClass(this);
 					$(this).addClass("down");
 				});
-            }
-            //log(v.name + " voted for " + v.value);
-        });
-    });
+			}
+			//log(v.name + " voted for " + v.value);
+		});
+	});
 }
 
 var names = [];
