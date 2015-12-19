@@ -2,6 +2,7 @@
 import sqlite3
 import os
 import json
+import time
 
 #import logging
 #from logging.handlers import RotatingFileHandler
@@ -52,34 +53,22 @@ def issue_list():
     except sqlite3.Error as e:
         return "An DB error occurred:", e.args[0]
 
-@app.route('/voted_list/')
+@app.route('/voted_list', strict_slashes=False)
 def voted_list():
+    #time.sleep(5)
     voted_obj = {}
-    #voted_json = '{"votes":['
     try:
         c = g.db.cursor()
-        # 's/votedlist.json'
         sql = "SELECT user_id, name, level, val FROM vote JOIN user USING (user_id)"
-        # get old_val
         c.execute(sql)
         rows = c.fetchall()
-        # execute new_val
         if rows is None :
             return sql
-        else :
-            #voted_list = []
-            for row in rows :
-                voted_obj[row[0]] = {'name':row[1],'level':row[2],'value':row[3]}
-                #voted_list.append ( '\n\t{ "name":"%s", "level":"%s", "value":"%s" }' % row )
-
-            #voted_json += ','.join(voted_list)
-            #voted_json += "\n]}"
-            #return voted_json
-            #return json.dumps(voted_obj)
-
+        for row in rows :
+            voted_obj[row[0]] = {'name':row[1],'level':row[2],'value':row[3]}
+        return json.dumps(voted_obj).decode('unicode-escape').encode('utf8')
     except sqlite3.Error as e:
         return "An DB error occurred:", e.args[0]
-    return json.dumps(voted_obj).decode('unicode-escape').encode('utf8')
 
 @app.route('/voting')
 def voting():
@@ -173,34 +162,6 @@ def hier_json2(bJson=True):
         return json.dumps(data).decode('unicode-escape').encode('utf8')
     else :
         return data
-
-@app.route('/hier_html/')
-def hier_html():
-
-    return """
-<div id="hier">
-    <div class="citizen">
-        <span>이희원</span>
-        <div class="citizen">
-            <span>대의원1</span>
-            <div class="citizen"><span>시민1</span></div>
-            <div class="citizen"><span>시민2</span></div>
-        </div>
-        <div class="citizen">
-            <span>대의원2</span>
-            <div class="citizen"><span>시민3</span></div>
-            <div class="citizen"><span>시민4</span></div>
-            <div class="citizen"><span>시민5</span></div>
-            <div class="citizen"><span>시민6</span></div>
-        </div>
-        <div class="citizen">
-            <span>대의원3</span>
-            <div class="citizen"><span>시민7</span></div>
-            <div class="citizen"><span>시민8</span></div>
-            <div class="citizen"><span>시민9</span></div>
-        </div>
-    </div>
-</div>"""
 
 @app.route("/s/<path:p>")
 def handle_static(p):
