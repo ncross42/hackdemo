@@ -19,191 +19,17 @@ h2 { text-align: center; }
 	border-left: 1px solid black;
 	display: none;
 }
-#table { border-collapse: collapse; border }
-#table td { border: 1px solid black; }
+#table { border: 0px; }
+#table td { 
+	border: 1px solid black; 
+    background-color: gray; 
+    color: white; 
+    font-weight: bolder;
+    text-align: center;
+    }
 
 </style>
-<script lang="javascript">
-function log(str) {
-    console.log(str);
-}
-
-var allLeafNum;
-
-var votes = {};
-
-function initTimer() {
-    updateMainTable();
-}
-
-function updateResultTables() {
-	var old_results = { "1": 0, "-1": 0, "0": 0 };
-	var new_results = { "1": 0, "-1": 0, "0": 0 };
-	var old_total = 0;
-	var new_total = 0;
-	$.each(votes, function(i, v) {
-			k = "" + v.value;
-			if (v.level && v.level == 1) {
-				old_results[k] += 1;
-				old_total += 1;
-			}
-			new_results[k] += 1;
-			new_total += 1;
-		});
-	log("old: " + old_results["1"] + " vs " + old_results["-1"] + ", gg: " + old_results["0"]);
-	log("new: " + new_results["1"] + " vs " + new_results["-1"] + ", gg: " + new_results["0"]);
-	var old_u_ratio = (old_results["1"] / old_total * 100)
-	var old_n_ratio = (old_results["0"] / old_total * 100)
-	var old_d_ratio = (old_results["-1"] / old_total * 100)
-	var new_u_ratio = (new_results["1"] / new_total * 100)
-	var new_n_ratio = (new_results["0"] / new_total * 100)
-	var new_d_ratio = (new_results["-1"] / new_total * 100)
-	log("old: " + old_u_ratio + " vs " + old_d_ratio);
-	log("new: " + new_u_ratio + " vs " + new_d_ratio);
-	$("#old_result div.cUp").width(old_u_ratio + "%");
-	$("#old_result div.cNeu").width(old_n_ratio + "%");
-	$("#old_result div.cDown").width(old_d_ratio + "%");
-	$("#new_result div.cUp").width(new_u_ratio + "%");
-	$("#new_result div.cNeu").width(new_n_ratio + "%");
-	$("#new_result div.cDown").width(new_d_ratio + "%");
-	$("#old_result div.cUp").text(old_results["1"] + "(" + ratioStr(old_u_ratio) + ")");
-	$("#old_result div.cNeu").text(old_results["0"] + "(" + ratioStr(old_n_ratio) + ")");
-	$("#old_result div.cDown").text(old_results["-1"] + "(" + ratioStr(old_d_ratio) + ")");
-	$("#new_result div.cUp").text(new_results["1"] + "(" + ratioStr(new_u_ratio) + ")");
-	$("#new_result div.cNeu").text(new_results["0"] + "(" + ratioStr(new_n_ratio) + ")");
-	$("#new_result div.cDown").text(new_results["-1"] + "(" + ratioStr(new_d_ratio) + ")");
-
-}
-
-function ratioStr(ratio) {
-	return ("" + ratio).substr(0, 4) + "%";
-}
-
-function updateMainTable() {
-	log("updateMainTable called");
-    $.getJSON('/voted_list', function(data) {
-                log("votedlist get success");
-                votes = data.votes;
-				updateResultTables();
-                $.each(votes, function(i, v) {
-
-									if(v.value == 1) {
-                        $.each($("#table td"), function() {
-                            if($(this).html() == v.name) {
-                                $(this).css("color", "blue");
-                            }
-                        });
-                    } else if(v.value == 0) {
-                        $.each($("#table td"), function() {
-                            if($(this).html() == v.name) {
-                                $(this).css("color", "black");
-                            }
-                        });
-                    } else if(v.value == -1) {
-                        $.each($("#table td"), function() {
-                            if($(this).html() == v.name) {
-                                $(this).css("color", "red");
-                            }
-                        });
-                    }
-                     log(v.name + " voted for " + v.value);
-                    // update td elements here
-                    });
-            });
-
-
-    // call this method repeatedly.
-	setTimeout(updateMainTable, 3000);
-}
-
-function loadData() {
-    var names = [];
-    allLeafNum = $("#hier > div > div > div").length;
-    var seniors = $("#hier > div > div");
-
-	var president = $("#hier > div");
-	var senior = $("#hier > div > div");
-	var citizen = $("#hier > div > div > div");
-
-	var presidentCount = president.length;
-	var seniorCount = senior.length;
-	var citizenCount = citizen.length;
-
-	var senior_leafnums = seniors.length;
-
-	var presidentColspan;
-	var seniorColspan = [];
-	$.each(president, function(index, value) { presidentColspan=$(value).find(".citizen").length; });
-	$.each(senior, function(index, value) { seniorColspan[index]=$(value).find(".citizen").length; });
-
-	console.log("presidentColspan: " + presidentColspan);
-	console.log("seniorColspan: " + seniorColspan);
-
-	var trNum = [];
-	trNum[0] = presidentCount;
-	trNum[1] = seniorCount;
-	trNum[2] = citizenCount;
-
-	var maxLevel = 0;
-	$.each($("#hier div"), function(i, v) {
-		v._colspan = $(v).find("div:not(:has(>div))").length;
-		v._level = 0;
-		var cur = $(v);
-		while (cur.is("div.citizen")) {
-			v._level += 1;
-			cur = cur.parent();
-		}
-		if (maxLevel < v._level) maxLevel = v._level;
-		// log(v._level + ", " + v._colspan);
-        var name = $(v).find(">span").text();
-        var optionElem = $("<option></option>").text(name);
-        $("#voter_name").append(optionElem);
-
-		$(v).attr("_level", v._level);
-		$(v).attr("_colspan", v._colspan);
-	});
-
-
-	var table = document.getElementById("table");
-
-	var depth = $(".citizen").parents("*").not("body,html").size();
-	log("depth: " + maxLevel);
-	for(var i = 0; i < maxLevel; i++) {
-
-		cols = $("#hier").find("div[_level="+(i+1)+"]");
-
-		var row = table.insertRow(i);
-
-		for(var j = 0; j < cols.length; j++) {
-			var cell = $(row.insertCell(j));
-			var name = $(cols[j]).find(">span").text();
-			cell.text(name);
-			cell.attr("colspan", cols[j]._colspan);
-			cell.attr("citizen_name", cols[j].name)
-		}
-
-	}
-
-}
-
-$(document).ready(function() {
-        loadData();
-        initTimer();
-        $("form button").click(function(event) {
-                event.preventDefault();
-                var votedValue = this.value;
-                var name = $("#voter_name").val();
-                var subj = $("#vote_subject").val();
-                $.get("/voting", { name: name, subject: subj, value: this.value })
-                .done(function(data) {
-                        log("voting succeeded for " + votedValue);
-                        updateMainTable();
-                        })
-                return false;
-                });
-        });
-
-</script>
+<script lang="javascript" src="/s/test.js" ></script>
 </head>
 <body>
 <input type="hidden" id="vote_subject" value="subj" />
@@ -233,27 +59,51 @@ $(document).ready(function() {
 </div>
 <div id="hier">
     <div class="citizen">
-        <span></span>
+        <span>대표자</span>
         <div class="citizen">
-            <span>대의원1</span>
-            <div class="citizen"><span>시민1</span></div>
-            <div class="citizen"><span>시민2</span></div>
+            <span>장유정</span>
+            <div class="citizen"><span>김진곤</span></div>
+            <div class="citizen"><span>장시영</span></div>
+            <div class="citizen"><span>봉주영</span></div>
+            <div class="citizen"><span>김세진</span></div>
+            <div class="citizen"><span>윤종민</span></div>
+            <div class="citizen"><span>안규태</span></div>
         </div>
         <div class="citizen">
-            <span>대의원2</span>
-            <div class="citizen"><span>시민3</span></div>
-            <div class="citizen"><span>시민4</span></div>
-            <div class="citizen"><span>시민5</span></div>
-            <div class="citizen"><span>시민6</span></div>
+            <span>안창현</span>
+            <div class="citizen"><span>김연주</span></div>
+            <div class="citizen"><span>김용현</span></div>
+            <div class="citizen"><span>최지원</span></div>
+            <div class="citizen"><span>우영주</span></div>
+            <div class="citizen"><span>정수민</span></div>
         </div>
         <div class="citizen">
-            <span>대의원3</span>
-            <div class="citizen"><span>시민7</span></div>
-            <div class="citizen"><span>시민8</span></div>
-            <div class="citizen"><span>시민9</span></div>
+            <span>노상범</span>
+            <div class="citizen"><span>구하나</span></div>
+            <div class="citizen"><span>정진아</span></div>
+            <div class="citizen"><span>박은환</span></div>
+            <div class="citizen"><span>박수영</span></div>
+            <div class="citizen"><span>최병훈</span></div>
+        </div>
+        <div class="citizen">
+            <span>우정범</span>
+            <div class="citizen"><span>박송원</span></div>
+            <div class="citizen"><span>정한별</span></div>
+            <div class="citizen"><span>이홍주</span></div>
+        </div>
+        <div class="citizen">
+            <span>이희원</span>
+            <div class="citizen"><span>이용재</span></div>
+            <div class="citizen"><span>임익재</span></div>
+            <div class="citizen"><span>황원근</span></div>
+        </div>
+        <div class="citizen">
+            <span>오상택</span>
+            <div class="citizen"><span>임춘봉</span></div>
+            <div class="citizen"><span>안영희</span></div>
+            <div class="citizen"><span>김도영</span></div>
         </div>
     </div>
-
 </div>
 <div id="voting">
 	<style>
