@@ -10,7 +10,7 @@ var votes = {};
 function initTimer() {
     updateMainTable();
     // call this method repeatedly.
-    //setTimeout(initTimer, 3000);
+    setTimeout(initTimer, 3000);
 }
 
 function updateResultTables() {
