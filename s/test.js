@@ -58,49 +58,79 @@ function ratioStr(ratio) {
 
 function updateMainTable() {
     log("updateMainTable called");
-    $.getJSON('/voted_list', function(data) {
+    $.getJSON('/voted_list/', function(data) {
         log("votedlist get success");
-        votes = data.votes;
+        votes = data;
+		new_votes = {};
+		$.each(votes, function(k, v) {
+			new_votes[Number(k)] = v;
+		});
+		votes = new_votes;
         updateResultTables();
-        $.each(votes, function(i, v) {
+		function getEffectiveVote(user_id) {
+			var pid = users[user_id]._parent;
+			var cnt = 0;
+			while (pid != undefined && pid != 0) {
+				if (votes[pid].value != 0)
+					return votes[pid].value
+				pid = users[pid]._parent;
+			}
+			return 0;
+		}
+		function clearClass(elem) {
+			$(elem).removeClass("up");
+			$(elem).removeClass("gray");
+			$(elem).removeClass("down");
+			$(elem).removeClass("gray inhr_up");
+			$(elem).removeClass("gray inhr_down");
+		}
+
+        $.each(data, function(i, v) {
+			var name = name;
             if(v.value == 1) { 
-                $.each($("#table td"), function() {
-                    if ($(this).html() == v.name) {
-                        $(this).css("background-color", "blue");
-                    }
-                });
-            } else if(v.value == 0) {
-                $.each($("#table td"), function() {
-                    if($(this).html() == v.name) {
-                        $(this).css("background-color", "gray");
-                    }
-                });
-            } else if(v.value == -1) {
-                $.each($("#table td"), function() {
-                    if($(this).html() == v.name) {
-                        $(this).css("background-color", "red");
-                    }
-                });
+                $.each($("#table td[user_id="+i+"]"), function() {
+					clearClass(this);
+					$(this).addClass("up");
+				});
+			} else if(v.value == 0) {
+				$.each($("#table td[user_id="+i+"]"), function() {
+					clearClass(this);
+					$(this).addClass("gray");
+					var v = getEffectiveVote($(this).attr("user_id"));
+					if (v == 1) 
+						$(this).addClass("gray inhr_up");
+					else if (v == -1)
+						$(this).addClass("gray inhr_down");
+				});
+			} else if(v.value == -1) {
+				$.each($("#table td[user_id="+i+"]"), function() {
+					clearClass(this);
+					$(this).addClass("down");
+				});
             }
             //log(v.name + " voted for " + v.value);
         });
     });
 }
 
+var names = [];
+var users = {};
+var levels = {};
+
 function loadData() {
-	$.getJSON("/hier_json", function(hier) {
+	$.getJSON("/hier_json/", function(hier) {
 		var maxLevel = hier["max_level"] + 1;
 		log(maxLevel);
-		var names = []
+		names = [];
 		delete hier["max_level"];
-		var users = {} // user_id, user
+		users = {} // user_id, user
 		$.each(hier, function(k, v) {
 			$.each(v, function(k2, v2) {
 				v2._parent = k;
 				users[v2.user_id] = v2;
 			});
 		});
-		var levels = {};
+		levels = {};
 		for (var i = 0; i < maxLevel; ++i) {
 			levels[i] = [];	
 		}
@@ -123,18 +153,27 @@ function loadData() {
 			c.text(u.name);
 			c.attr("colspan", calcColspan(u));
 			c.attr("citizen_name", u.name);
+			c.attr("user_id", u.user_id);
 		}
-		cell00.text(hier[0][0].name);
-		cell00.attr("colspan", calcColspan(hier[0][0]));
-		cell00.attr("citizen_name", hier[0][0].name);
+		setCellAttrs(cell00, hier[0][0]);
 
 		for(var i = 1; i < maxLevel; i++) {
-			cols = levels[i];
 			var row = table.insertRow(i);
+			levels[i-1].sort(function(o1, o2) {
+				return o1.name.localeCompare(o2.name);
+			});
+			var cellCount = 0;
+			for (var k = 0; k < levels[i-1].length; ++k) {
+				cols = hier[levels[i-1][k].user_id];
 
-			for(var j = 0; j < cols.length; j++) {
-				var cell = $(row.insertCell(j));
-				setCellAttrs(cell, cols[j]);
+				log(cols);
+				cols.sort(function(o1, o2) {
+					return o1.name.localeCompare(o2.name);
+				});
+				for(var j = 0; j < cols.length; j++) {
+					var cell = $(row.insertCell(cellCount++));
+					setCellAttrs(cell, cols[j]);
+				}
 			}
 		}
 
@@ -143,84 +182,12 @@ function loadData() {
 			var optionElem = $("<option></option>").text(v);
 			$("#voter_name").append(optionElem);
 		});
-
-
+		initTimer();
 	});
-}
-
-function loadData2() {
-    var names = [];
-    allLeafNum = $("#hier > div > div > div").length;
-    var seniors = $("#hier > div > div");
-
-    var president = $("#hier > div");
-    var senior = $("#hier > div > div");
-    var citizen = $("#hier > div > div > div");
-
-    var presidentCount = president.length;
-    var seniorCount = senior.length;
-    var citizenCount = citizen.length;
-
-    var senior_leafnums = seniors.length;
-
-    var presidentColspan;
-    var seniorColspan = [];
-    $.each(president, function(index, value) { presidentColspan=$(value).find(".citizen").length; });
-    $.each(senior, function(index, value) { seniorColspan[index]=$(value).find(".citizen").length; });
-
-    console.log("presidentColspan: " + presidentColspan);
-    console.log("seniorColspan: " + seniorColspan);
-
-    var trNum = [];
-    trNum[0] = presidentCount;
-    trNum[1] = seniorCount;
-    trNum[2] = citizenCount;
-
-    var maxLevel = 0;
-    $.each($("#hier div"), function(i, v) {
-        v._colspan = $(v).find("div:not(:has(>div))").length;
-        v._level = 0;
-        var cur = $(v);
-        while (cur.is("div.citizen")) {
-            v._level += 1;
-            cur = cur.parent();
-        }
-        if (maxLevel < v._level) maxLevel = v._level;
-        // log(v._level + ", " + v._colspan);
-        var name = $(v).find(">span").text();
-        var optionElem = $("<option></option>").text(name);
-        $("#voter_name").append(optionElem);
-
-        $(v).attr("_level", v._level);
-        $(v).attr("_colspan", v._colspan);
-    });
-
-
-    var table = document.getElementById("table");
-
-    var depth = $(".citizen").parents("*").not("body,html").size();
-    log("depth: " + maxLevel);
-    for(var i = 0; i < maxLevel; i++) {
-
-        cols = $("#hier").find("div[_level="+(i+1)+"]");
-
-        var row = table.insertRow(i);
-
-        for(var j = 0; j < cols.length; j++) {
-            var cell = $(row.insertCell(j));
-            var name = $(cols[j]).find(">span").text();
-            cell.text(name);
-            cell.attr("colspan", cols[j]._colspan);
-            cell.attr("citizen_name", cols[j].name)
-        }
-
-    }
-
 }
 
 $(document).ready(function() {
     loadData();
-    initTimer();
     $("form button").click(function(event) {
         event.preventDefault();
         var votedValue = this.value;
