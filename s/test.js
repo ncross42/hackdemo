@@ -10,7 +10,7 @@ var votes = {};
 function initTimer() {
     updateMainTable();
     // call this method repeatedly.
-    setTimeout(initTimer, 3000);
+    //setTimeout(initTimer, 3000);
 }
 
 function updateResultTables() {
@@ -88,6 +88,67 @@ function updateMainTable() {
 }
 
 function loadData() {
+	$.getJSON("/hier_json", function(hier) {
+		var maxLevel = hier["max_level"] + 1;
+		log(maxLevel);
+		var names = []
+		delete hier["max_level"];
+		var users = {} // user_id, user
+		$.each(hier, function(k, v) {
+			$.each(v, function(k2, v2) {
+				v2._parent = k;
+				users[v2.user_id] = v2;
+			});
+		});
+		var levels = {};
+		for (var i = 0; i < maxLevel; ++i) {
+			levels[i] = [];	
+		}
+		$.each(users, function(k, user) {
+			levels[user.level][levels[user.level].length] = user;
+			names[names.length] = user.name;
+		});
+		var row0 = table.insertRow(0);
+		var cell00 = $(row0.insertCell(0));
+		function calcColspan(u) {
+			if (!hier[u.user_id])
+				return 1;
+			var span = 0;
+			$.each(hier[u.user_id], function(k, v) {
+				span += calcColspan(v);
+			});
+			return span;
+		}
+		function setCellAttrs(c, u) {
+			c.text(u.name);
+			c.attr("colspan", calcColspan(u));
+			c.attr("citizen_name", u.name);
+		}
+		cell00.text(hier[0][0].name);
+		cell00.attr("colspan", calcColspan(hier[0][0]));
+		cell00.attr("citizen_name", hier[0][0].name);
+
+		for(var i = 1; i < maxLevel; i++) {
+			cols = levels[i];
+			var row = table.insertRow(i);
+
+			for(var j = 0; j < cols.length; j++) {
+				var cell = $(row.insertCell(j));
+				setCellAttrs(cell, cols[j]);
+			}
+		}
+
+		names.sort();
+		$.each(names, function(k, v) {
+			var optionElem = $("<option></option>").text(v);
+			$("#voter_name").append(optionElem);
+		});
+
+
+	});
+}
+
+function loadData2() {
     var names = [];
     allLeafNum = $("#hier > div > div > div").length;
     var seniors = $("#hier > div > div");
