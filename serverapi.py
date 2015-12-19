@@ -38,17 +38,22 @@ def voting(user_name,value,issue=ISSUE):
     new_val = int(value)
     try:
         c = g.db.cursor()
-        issue_id = c.fetchone("SELECT issue_id FROM issue WHERE name = '" + issue +"'")
+        c.execute("SELECT issue_id FROM issue WHERE name='%s'" % (issue) )
+        issue_id = c.fetchone()
         if issue_id == None :
             raise Exception('Unkown Issue name : ' + issue )
-        user_id = c.fetchone("SELECT user_id FROM user WHERE name = '" + user_name +"'")
+        c.execute("SELECT user_id FROM user WHERE name='%s'" % (user_name) )
+        user_id = c.fetchone()
         if user_id == None :
             raise Exception('Unkown User name : ' + name )
-        old_val = c.fetchone("SELECT val FROM vote WHERE issue_id = "+issue_id+" AND user_id = "+user_id)
+        c.execute("SELECT val FROM vote WHERE issue_id=%d AND user_id=%d" % (issue_id,user_id) )
+        old_val = c.fetchone()
         if old_val == None :
             sql = "INSERT INTO vote (issue_id,user_id,val) VALUES (%d,%d,%d)" % (issue_id,user_id,new_val)
+            c.execute(sql)
         elif new_val != old_val :
             sql = "UPDATE vote SET val=%d WHERE issue_id=%d AND user_id=%d" % (new_val,issue_id,user_id)
+            c.execute(sql)
     except sqlite3.Error as e:
         return "An DB error occurred:", e.args[0]
     return ""
@@ -95,5 +100,5 @@ def handle_static(p):
 
 if __name__ == "__main__":
     app.debug = True
-    #app.run()
-    app.run(host='0.0.0.0', port=80)
+    app.run()
+    #app.run(host='0.0.0.0', port=80)
