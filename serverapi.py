@@ -6,8 +6,9 @@ import sqlite3
 from flask import Flask
 from flask import g
 from flask import request
+from flask import send_from_directory
 #from flask import Markup
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='')
 
 DATABASE = 'db.sqlite'
 
@@ -47,6 +48,11 @@ def print_something():
     value = request.args.get('value', '')
     app.logger.info('user_id: %s, bill_num: %s, value: %s', user_id, bill_num, value)
     return 'hello'
+
+@app.route("/s/<path:p>")
+def handle_static(p):
+    return send_from_directory("s", filename=p)
+
 if __name__ == "__main__":
     app.debug = True
     app.run()
