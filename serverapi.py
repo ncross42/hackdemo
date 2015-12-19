@@ -54,12 +54,12 @@ def issue_list():
 
 @app.route('/voted_list/')
 def voted_list():
-    voted_obj = {"votes":[]}
-    voted_json = '{"votes":['
+    voted_obj = {}
+    #voted_json = '{"votes":['
     try:
         c = g.db.cursor()
         # 's/votedlist.json'
-        sql = "SELECT name, level, val FROM vote JOIN user USING (user_id)"
+        sql = "SELECT user_id, name, level, val FROM vote JOIN user USING (user_id)"
         # get old_val
         c.execute(sql)
         rows = c.fetchall()
@@ -67,18 +67,19 @@ def voted_list():
         if rows is None :
             return sql
         else :
-            voted_list = []
+            #voted_list = []
             for row in rows :
-                voted_obj['votes'].append( {'name':row[0],'level':row[1],'value':row[2]} )
-                voted_list.append ( '\n\t{ "name":"%s", "level":"%s", "value":"%s" }' % row )
+                voted_obj[row[0]] = {'name':row[1],'level':row[2],'value':row[3]}
+                #voted_list.append ( '\n\t{ "name":"%s", "level":"%s", "value":"%s" }' % row )
 
-            voted_json += ','.join(voted_list)
-            voted_json += "\n]}"
-            return voted_json
+            #voted_json += ','.join(voted_list)
+            #voted_json += "\n]}"
+            #return voted_json
             #return json.dumps(voted_obj)
 
     except sqlite3.Error as e:
         return "An DB error occurred:", e.args[0]
+    return json.dumps(voted_obj).decode('unicode-escape').encode('utf8')
 
 @app.route('/voting')
 def voting():
