@@ -29,6 +29,30 @@ def after_request(response):
 def index():
     return render_template("test.html")
 
+@app.route('/user_list')
+def user_list():
+    try:
+        c = g.db.cursor()
+        c.execute('SELECT name FROM user ORDER BY name')
+        rows = c.fetchall()
+        tmp = json.dumps(rows).decode('unicode-escape').encode('utf8').replace('], [',',')
+        return tmp[1:-1]
+    except sqlite3.Error as e:
+        return "An DB error occurred:", e.args[0]
+
+@app.route('/issue_list')
+def issue_list():
+    try:
+        result = []
+        c = g.db.cursor()
+        c.execute('SELECT * FROM issue ')
+        rows = c.fetchall()
+        for row in rows :
+            result.append( {'issue_id':row[0], 'name':row[1]} )
+        return json.dumps(result).decode('unicode-escape').encode('utf8')
+    except sqlite3.Error as e:
+        return "An DB error occurred:", e.args[0]
+
 @app.route('/voted_list/')
 def voted_list():
     voted_obj = {"votes":[]}
@@ -101,17 +125,6 @@ def voting():
     except sqlite3.Error as e:
         return "An DB error occurred:", e.args[0]
     return ""
-@app.route('/user_list')
-def user_list():
-    try:
-        c = g.db.cursor()
-        c.execute('SELECT name FROM user ORDER BY name')
-        rows = c.fetchall()
-        tmp = json.dumps(rows).decode('unicode-escape').encode('utf8').replace('], [',',')
-        return tmp[1:-1]
-    except sqlite3.Error as e:
-        return "An DB error occurred:", e.args[0]
-    
 
 @app.route('/hier_html/')
 def get_hier():
