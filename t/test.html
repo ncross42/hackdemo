@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+<script src="/s/js/jquery-1.11.3.min.js"></script>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="/s/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<!-- Optional theme -->
+<link rel="stylesheet" href="/s/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+<!-- Latest compiled and minified JavaScript -->
+<script src="/s/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+
+h2 { text-align: center; }
+#hier div {
+	margin-left: 1em;
+	border-left: 1px solid black;
+	display: none;
+}
+#table { border-collapse: collapse; border }
+#table td { border: 1px solid black; }
+
+</style>
+<script lang="javascript">
+function log(str) {
+    console.log(str);
+}
+
+var allLeafNum;
+
+var votes = {};
+
+function initTimer() {
+    updateMainTable();
+}
+
+function updateResultTables() {
+	var old_results = { "1": 0, "-1": 0, "0": 0 };
+	var new_results = { "1": 0, "-1": 0, "0": 0 };
+	var old_total = 0;
+	var new_total = 0;
+	$.each(votes, function(i, v) {
+			k = "" + v.value;
+			if (v.level && v.level == 1) {
+				old_results[k] += 1;
+				old_total += 1;
+			}
+			new_results[k] += 1;
+			new_total += 1;
+		});
+	log("old: " + old_results["1"] + " vs " + old_results["-1"] + ", gg: " + old_results["0"]);
+	log("new: " + new_results["1"] + " vs " + new_results["-1"] + ", gg: " + new_results["0"]);
+	var old_u_ratio = (old_results["1"] / old_total * 100)
+	var old_n_ratio = (old_results["0"] / old_total * 100)
+	var old_d_ratio = (old_results["-1"] / old_total * 100)
+	var new_u_ratio = (new_results["1"] / new_total * 100)
+	var new_n_ratio = (new_results["0"] / new_total * 100)
+	var new_d_ratio = (new_results["-1"] / new_total * 100)
+	log("old: " + old_u_ratio + " vs " + old_d_ratio);
+	log("new: " + new_u_ratio + " vs " + new_d_ratio);
+	$("#old_result div.cUp").width(old_u_ratio + "%");
+	$("#old_result div.cNeu").width(old_n_ratio + "%");
+	$("#old_result div.cDown").width(old_d_ratio + "%");
+	$("#new_result div.cUp").width(new_u_ratio + "%");
+	$("#new_result div.cNeu").width(new_n_ratio + "%");
+	$("#new_result div.cDown").width(new_d_ratio + "%");
+	$("#old_result div.cUp").text(old_results["1"] + "(" + ratioStr(old_u_ratio) + ")");
+	$("#old_result div.cNeu").text(old_results["0"] + "(" + ratioStr(old_n_ratio) + ")");
+	$("#old_result div.cDown").text(old_results["-1"] + "(" + ratioStr(old_d_ratio) + ")");
+	$("#new_result div.cUp").text(new_results["1"] + "(" + ratioStr(new_u_ratio) + ")");
+	$("#new_result div.cNeu").text(new_results["0"] + "(" + ratioStr(new_n_ratio) + ")");
+	$("#new_result div.cDown").text(new_results["-1"] + "(" + ratioStr(new_d_ratio) + ")");
+
+}
+
+function ratioStr(ratio) {
+	return ("" + ratio).substr(0, 4) + "%";
+}
+
+function updateMainTable() {
+	log("updateMainTable called");
+    $.getJSON('/voted_list', function(data) {
+                log("votedlist get success");    
+                votes = data.votes;
+				updateResultTables();
+                $.each(votes, function(i, v) {
+                    // log(v.name + " voted for " + v.value);
+                    // update td elements here
+                    });
+            });
+
+
+    // call this method repeatedly.
+	// setTimeout(updateMainTable, 3000);
+}
+
+function loadData() {
+    var names = [];
+    allLeafNum = $("#hier > div > div > div").length;
+    var seniors = $("#hier > div > div");
+        
+	var president = $("#hier > div");
+	var senior = $("#hier > div > div");
+	var citizen = $("#hier > div > div > div");
+	
+	var presidentCount = president.length;
+	var seniorCount = senior.length;
+	var citizenCount = citizen.length;
+	
+	var senior_leafnums = seniors.length;
+
+	var presidentColspan;
+	var seniorColspan = [];
+	$.each(president, function(index, value) { presidentColspan=$(value).find(".citizen").length; });
+	$.each(senior, function(index, value) { seniorColspan[index]=$(value).find(".citizen").length; });
+	
+	console.log("presidentColspan: " + presidentColspan);
+	console.log("seniorColspan: " + seniorColspan);
+	
+	var trNum = [];
+	trNum[0] = presidentCount;
+	trNum[1] = seniorCount;
+	trNum[2] = citizenCount;
+	
+	var maxLevel = 0;
+	$.each($("#hier div"), function(i, v) {
+		v._colspan = $(v).find("div:not(:has(>div))").length;
+		v._level = 0;
+		var cur = $(v);
+		while (cur.is("div.citizen")) {
+			v._level += 1;
+			cur = cur.parent();
+		}
+		if (maxLevel < v._level) maxLevel = v._level;
+		// log(v._level + ", " + v._colspan);
+        var name = $(v).find(">span").text();
+        var optionElem = $("<option></option>").text(name);
+        $("#voter_name").append(optionElem);
+            
+		$(v).attr("_level", v._level);
+		$(v).attr("_colspan", v._colspan);
+	});
+	
+	
+	var table = document.getElementById("table");
+	
+	var depth = $(".citizen").parents("*").not("body,html").size();
+	log("depth: " + maxLevel);
+	for(var i = 0; i < maxLevel; i++) {
+		
+		cols = $("#hier").find("div[_level="+(i+1)+"]");
+		
+		var row = table.insertRow(i);
+		
+		for(var j = 0; j < cols.length; j++) {
+			var cell = $(row.insertCell(j));
+			var name = $(cols[j]).find(">span").text();
+			cell.text(name);
+			cell.attr("colspan", cols[j]._colspan);
+			cell.attr("citizen_name", cols[j].name)
+		}
+		
+	}
+	
+}
+
+$(document).ready(function() {
+        loadData();
+        initTimer();
+        $("form button").click(function(event) {
+                event.preventDefault();
+                var votedValue = this.value;
+                var name = $("#voter_name").val();
+                var subj = $("#vote_subject").val();
+                $.get("/voting", { name: name, subject: subj, value: this.value })
+                .done(function(data) {
+                        log("voting succeeded for " + votedValue);
+                        updateMainTable();
+                        })
+                return false;
+                });
+        });
+
+</script>
+</head>
+<body>
+<input type="hidden" id="vote_subject" value="subj" />
+<div id="old_result" class="result_chart">
+	<style>
+		.result_chart div.chart { border: 1px solid black; font-weight: bolder; color: white; }	
+		.result_chart div.chart > div { height: 2em; text-align: right; }	
+		.result_chart div.cUp { background-color: blue; }	
+		.result_chart div.cDown { background-color: red; text-align: right; }	
+		.result_chart div.cNeu { background-color: gray; text-align: right; color: black; }	
+		.result_chart h2 { text-align: center; }
+	</style>
+	<h2>기존 방식 투표 결과</h2>
+	<div class="chart">
+		<div class="cUp"></div>
+		<div class="cDown"></div>
+		<div class="cNeu"></div>
+	</div>
+</div>
+<div id="new_result" class="result_chart">
+	<h2>Do Balance! (균형 직접 민주주의) 결과</h2>
+	<div class="chart">
+		<div class="cUp"></div>
+		<div class="cDown"></div>
+		<div class="cNeu"></div>
+	</div>
+</div>
+<div id="hier">
+    <div class="citizen">
+        <span>이희원</span>
+        <div class="citizen">
+            <span>대의원1</span>
+            <div class="citizen"><span>시민1</span></div>
+            <div class="citizen"><span>시민2</span></div>
+        </div>
+        <div class="citizen">
+            <span>대의원2</span>
+            <div class="citizen"><span>시민3</span></div>
+            <div class="citizen"><span>시민4</span></div>
+            <div class="citizen"><span>시민5</span></div>
+            <div class="citizen"><span>시민6</span></div>
+        </div>
+        <div class="citizen">
+            <span>대의원3</span>
+            <div class="citizen"><span>시민7</span></div>
+            <div class="citizen"><span>시민8</span></div>
+            <div class="citizen"><span>시민9</span></div>
+        </div>
+    </div>
+
+</div>
+<div id="voting">
+	<style>
+		#voting li { display: inline; }
+		#voting ul { text-align: center; padding-left: 0; }
+
+	</style>
+    <h2>투표하기</h2>
+    <form class="form-inline" style="text-align: center">
+        <div class="form-group">
+            <label class="sr-only">이름</label>
+            <select class="form-control" id="voter_name"></select>
+            <button class="icon-thumbs-up btn btn-primary btn-lg" value="1"> 찬성 </button>
+            <button class="icon-pause btn btn-default btn-lg" value="0"> 기권 </button>
+            <button class="icon-thumbs-down btn btn-danger btn-lg" value="-1"> 반대 </button>
+        </div>
+    </form>
+</div>
+<h2>Do Balance! 식 의사 결정 구조</h2>
+<div id="hierdisp" class="container-fluid">
+    <table id="table" class="table"></table>
+</div>
+</body>
+</html>
