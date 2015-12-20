@@ -10,45 +10,66 @@ var votes = {};
 function initTimer() {
     updateMainTable();
     // call this method repeatedly.
-    setTimeout(initTimer, 3000);
+    setTimeout(initTimer, 5000);
+}
+
+function updatePieChart(old_results,old_total,new_results,new_total) {
+	$src_old = $("#piechart_src_old");
+	$src_old.html('');
+	$src_old.append( '<li class="pieChart" value="'+old_results["1"]+'">red</li>' );
+	$src_old.append( '<li class="pieChart" value="'+old_results["-1"]+'">blue</li>');
+	$src_old.append( '<li class="pieChart" value="'+old_results["0"]+'">#eee</li>' );
+	$src_new = $("#piechart_src_new");
+	$src_new.html('');
+	$src_new.append( '<li class="pieChart" value="'+new_results["1"]+'">red</li>'  );
+	$src_new.append( '<li class="pieChart" value="'+new_results["-1"]+'">blue</li>');
+	$src_new.append( '<li class="pieChart" value="'+new_results["0"]+'">#eee</li>' );
+
+	$('#piechart_tgt_old').html('');
+	$('#piechart_tgt_new').html('');
+	$('#piechart_src_old').pieChart('#piechart_tgt_old', '');
+	$('#piechart_src_new').pieChart('#piechart_tgt_new', '');
+	$('.legend').html('');
 }
 
 function updateResultTables() {
-    var old_results = { "1": 0, "-1": 0, "0": 0 };
-    var new_results = { "1": 0, "-1": 0, "0": 0 };
-    var old_total = 0;
-    var new_total = 0;
-    $.each(votes, function(i, v) {
-        if (v.level && v.level == 1) {
-            old_results[v.value] += 1;
-            old_total += 1;
-        }
-        new_results["" + getEffectiveVote(i)] += 1;
-        new_total += 1;
-    });
-    log("old: " + old_results["1"] + " vs " + old_results["-1"] + ", gg: " + old_results["0"]);
-    log("new: " + new_results["1"] + " vs " + new_results["-1"] + ", gg: " + new_results["0"]);
-    var old_u_ratio = (old_results["1"] / old_total * 100);
+	var old_results = { "1": 0, "-1": 0, "0": 0 };
+	var new_results = { "1": 0, "-1": 0, "0": 0 };
+	var old_total = 0;
+	var new_total = 0;
+	$.each(votes, function(i, v) {
+		//if (v.level && v.level == 1) {
+			old_results[v.value] += 1;
+			old_total += 1;
+		//}
+		new_results["" + getEffectiveVote(i)] += 1;
+		new_total += 1;
+	});
+	/*
+	log("old: " + old_results["1"] + " vs " + old_results["-1"] + ", gg: " + old_results["0"]);
+	log("new: " + new_results["1"] + " vs " + new_results["-1"] + ", gg: " + new_results["0"]);
+	var old_u_ratio = (old_results["1"] / old_total * 100);
 	var old_n_ratio = (old_results["0"] / old_total * 100);
 	var old_d_ratio = (old_results["-1"] / old_total * 100);
 	var new_u_ratio = (new_results["1"] / new_total * 100);
 	var new_n_ratio = (new_results["0"] / new_total * 100);
 	var new_d_ratio = (new_results["-1"] / new_total * 100);
 	log("old: " + old_u_ratio + " vs " + old_d_ratio);
-    log("new: " + new_u_ratio + " vs " + new_d_ratio);
-    $("#old_result div.cUp").width(old_u_ratio + "%");
-    $("#old_result div.cNeu").width(old_n_ratio + "%");
-    $("#old_result div.cDown").width(old_d_ratio + "%");
-    $("#new_result div.cUp").width(new_u_ratio + "%");
-    $("#new_result div.cNeu").width(new_n_ratio + "%");
-    $("#new_result div.cDown").width(new_d_ratio + "%");
-    $("#old_result div.cUp").text(old_results["1"] + "(" + ratioStr(old_u_ratio) + ")");
-    $("#old_result div.cNeu").text(old_results["0"] + "(" + ratioStr(old_n_ratio) + ")");
-    $("#old_result div.cDown").text(old_results["-1"] + "(" + ratioStr(old_d_ratio) + ")");
-    $("#new_result div.cUp").text(new_results["1"] + "(" + ratioStr(new_u_ratio) + ")");
-    $("#new_result div.cNeu").text(new_results["0"] + "(" + ratioStr(new_n_ratio) + ")");
-    $("#new_result div.cDown").text(new_results["-1"] + "(" + ratioStr(new_d_ratio) + ")");
-
+	log("new: " + new_u_ratio + " vs " + new_d_ratio);
+	$("#old_result div.cUp").width(old_u_ratio + "%");
+	$("#old_result div.cNeu").width(old_n_ratio + "%");
+	$("#old_result div.cDown").width(old_d_ratio + "%");
+	$("#new_result div.cUp").width(new_u_ratio + "%");
+	$("#new_result div.cNeu").width(new_n_ratio + "%");
+	$("#new_result div.cDown").width(new_d_ratio + "%");
+	$("#old_result div.cUp").text(old_results["1"] + "(" + ratioStr(old_u_ratio) + ")");
+	$("#old_result div.cNeu").text(old_results["0"] + "(" + ratioStr(old_n_ratio) + ")");
+	$("#old_result div.cDown").text(old_results["-1"] + "(" + ratioStr(old_d_ratio) + ")");
+	$("#new_result div.cUp").text(new_results["1"] + "(" + ratioStr(new_u_ratio) + ")");
+	$("#new_result div.cNeu").text(new_results["0"] + "(" + ratioStr(new_n_ratio) + ")");
+	$("#new_result div.cDown").text(new_results["-1"] + "(" + ratioStr(new_d_ratio) + ")");
+	*/
+	updatePieChart(old_results,old_total,new_results,new_total);
 }
 
 function ratioStr(ratio) {
@@ -188,7 +209,7 @@ function loadData() {
 			var optionElem = $("<option></option>").text(v);
 			$("#voter_name").append(optionElem);
 		});
-		initTimer();
+		//initTimer();
 	});
 }
 

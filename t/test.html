@@ -10,6 +10,8 @@
 <link rel="stylesheet" href="/s/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 <!-- Latest compiled and minified JavaScript -->
 <script src="/s/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<script type="text/javascript" src="/s/piechart/PieChart.js"></script>
+<link rel="stylesheet" href="/s/piechart/PieChart.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
 
@@ -58,11 +60,24 @@ h2 { text-align: center; }
 
 form { text-align: center; }
 
+.pie0 {
+	fill: blue;
+	background-color: white;
+}
+.pie1 {
+	fill: red;
+	background-color: white;
+}
+.pie2 {
+	fill: #eee;
+	background-color: white;
+}
 </style>
 <script lang="javascript" src="/s/test.js" ></script>
 </head>
 <body>
 <input type="hidden" id="vote_subject" value="subj" />
+<!--
 <div id="old_result" class="result_chart">
 	<h2>기존 방식 투표 결과</h2>
 	<div class="chart">
@@ -79,8 +94,17 @@ form { text-align: center; }
 		<div class="cNeu"></div>
 	</div>
 </div>
+-->
+<ul id="piechart_src_old" style="display:none"></ul>
+<ul id="piechart_src_new" style="display:none"></ul>
+<table width=100% border=1>
+	<tr>
+		<td width="50%"><center><h3>기존 전체투표 결과</h3><div id="piechart_tgt_old" style="border:1px;width:300px; height:300px"></div></center></td>
+		<td width="50%"><center><h3>균형투표(DoBalance!) 결과</h3><div id="piechart_tgt_new" style="border:1px;width:300px; height:300px"></div></center></td>
+	</tr>
+</table>
 <div id="voting">
-    <h2>투표하기</h2>
+    <h2>"짜장" vs "짬뽕" 투표하기</h2>
     <form class="form-inline">
         <div class="form-group">
             <label class="sr-only">이름</label>
@@ -97,7 +121,7 @@ form { text-align: center; }
         </div>
     </form>
 </div>
-<h2>Do Balance! 식 의사 결정 구조<button id="btn_refresh" class="btn btn-lg"><span class="glyphicon glyphicon-refresh"/></button></h2>
+<h2>Do Balance! 의사결정 구조<button id="btn_refresh" class="btn btn-lg"><span class="glyphicon glyphicon-refresh"/></button></h2>
 <div id="hierdisp" class="container-fluid">
     <table id="table" class="table"></table>
 </div>

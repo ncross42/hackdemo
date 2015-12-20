@@ -18,7 +18,7 @@ ISSUE = "담배값 1만원 인상"
 
 @app.before_request
 def before_request():
-    g.db = sqlite3.connect(DATABASE)
+    g.db = sqlite3.connect(DATABASE, isolation_level=None)
 
 @app.after_request
 def after_request(response):
@@ -87,8 +87,8 @@ def voting():
     try:
         c = g.db.cursor()
         # get issue
-        c.execute("SELECT issue_id FROM issue WHERE name='%s'" % (issue) )
-        row = c.fetchone()
+        sql = "SELECT issue_id FROM issue WHERE name='%s'" % (issue)
+        row = c.execute(sql).fetchone()
         if row is None :
             raise Exception('Unkown Issue name : ' + issue )
         issue_id = row[0]
@@ -96,21 +96,20 @@ def voting():
         if user.isdigit() :
             user_id = int(user)
         else :
-            c.execute("SELECT user_id FROM user WHERE name='%s'" % (user) )
-            row = c.fetchone()
+            sql = "SELECT user_id FROM user WHERE name='%s'" % (user)
+            row = c.execute(sql).fetchone()
             if row is None :
                 raise Exception('Unkown user name : ' + user )
             user_id = row[0]
         # get old_val
-        c.execute("SELECT val FROM vote WHERE issue_id=%d AND user_id=%d" % (issue_id,user_id) )
-        row = c.fetchone()
+        sql = "SELECT val FROM vote WHERE issue_id=%d AND user_id=%d" % (issue_id,user_id)
+        row = c.execute(sql).fetchone()
         # execute new_val
         if row is None :
             sql = "INSERT INTO vote (issue_id,user_id,val) VALUES (%d,%d,%d)" % (issue_id,user_id,new_val)
             c.execute(sql)
             sql = "UPDATE issue SET last_vote_dt = DATETIME('now') WHERE issue_id=%d" % (issue_id)
             c.execute(sql)
-            g.db.commit()
         else :
             old_val = row[0]
             if new_val != old_val :
@@ -118,9 +117,8 @@ def voting():
                 c.execute(sql)
                 sql = "UPDATE issue SET last_vote_dt = DATETIME('now') WHERE issue_id=%d" % (issue_id)
                 c.execute(sql)
-                g.db.commit()
     except sqlite3.Error as e:
-        return "An DB error occurred:", e.args[0]
+        return "An DB error occurred:"+ e.args[0] + "\n<br>SQL : " + sql
     return ""
 
 @app.route('/hier_json/')
