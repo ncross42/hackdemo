@@ -8,6 +8,7 @@ __pycache__/
 # Distribution / packaging
 *.swp
 .Python
+nohup.out
 env/
 build/
 develop-eggs/

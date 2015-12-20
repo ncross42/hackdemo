@@ -10,7 +10,7 @@ var votes = {};
 function initTimer() {
     updateMainTable();
     // call this method repeatedly.
-    setTimeout(initTimer, 5000);
+    setTimeout(initTimer, 10000);
 }
 
 function updatePieChart(old_results,old_total,new_results,new_total) {
@@ -209,7 +209,7 @@ function loadData() {
 			var optionElem = $("<option></option>").text(v);
 			$("#voter_name").append(optionElem);
 		});
-		//initTimer();
+		initTimer();
 	});
 }
 

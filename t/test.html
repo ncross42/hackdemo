@@ -11,7 +11,7 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="/s/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 <script type="text/javascript" src="/s/piechart/PieChart.js"></script>
-<link rel="stylesheet" href="/s/piechart/PieChart.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<link rel="stylesheet" href="/s/piechart/PieChart.css" integrity="sha256-6BECXBEffs/RFDjaCJYtnl6IAUoCNqeUm1Ub6EyuT5U=" crossorigin="anonymous">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
 
@@ -30,7 +30,7 @@ h2 { text-align: center; }
     text-align: center;
     }
 #table td.up {
-	background-color: blue;
+	background-color: DodgerBlue;
 	color: white;
 }
 #table td.down {
@@ -42,7 +42,7 @@ h2 { text-align: center; }
 	color: black;
 }
 #table td.inhr_up {
-	color: blue;
+	color: DodgerBlue;
 }
 #table td.inhr_down {
 	color: red;
@@ -50,7 +50,7 @@ h2 { text-align: center; }
 
 .result_chart div.chart { border: 1px solid black; font-weight: bolder; color: white; }
 .result_chart div.chart > div { height: 2em; text-align: right; }
-.result_chart div.cUp { background-color: blue; }
+.result_chart div.cUp { background-color: DodgerBlue; }
 .result_chart div.cDown { background-color: red; text-align: right; }
 .result_chart div.cNeu { background-color: gray; text-align: right; color: black; }
 .result_chart h2 { text-align: center; }
@@ -61,7 +61,7 @@ h2 { text-align: center; }
 form { text-align: center; }
 
 .pie0 {
-	fill: blue;
+	fill: DodgerBlue;
 	background-color: white;
 }
 .pie1 {
@@ -71,6 +71,11 @@ form { text-align: center; }
 .pie2 {
 	fill: #eee;
 	background-color: white;
+}
+
+text {
+	font-size:15px;
+	font-weight:bold;
 }
 </style>
 <script lang="javascript" src="/s/test.js" ></script>
@@ -99,12 +104,12 @@ form { text-align: center; }
 <ul id="piechart_src_new" style="display:none"></ul>
 <table width=100% border=1>
 	<tr>
-		<td width="50%"><center><h3>기존 전체투표 결과</h3><div id="piechart_tgt_old" style="border:1px;width:300px; height:300px"></div></center></td>
-		<td width="50%"><center><h3>균형투표(DoBalance!) 결과</h3><div id="piechart_tgt_new" style="border:1px;width:300px; height:300px"></div></center></td>
+		<td width="50%"><center><h3>기존 전체투표 결과</h3><div id="piechart_tgt_old" style="border:1px;width:250px; height:250px"></div></center></td>
+		<td width="50%"><center><h3>균형투표(DoBalance!) 결과</h3><div id="piechart_tgt_new" style="border:1px;width:250px; height:250px"></div></center></td>
 	</tr>
 </table>
 <div id="voting">
-    <h2>"짜장" vs "짬뽕" 투표하기</h2>
+    <h2>"부먹" vs "찍먹" 투표하기</h2>
     <form class="form-inline">
         <div class="form-group">
             <label class="sr-only">이름</label>
