@@ -10,7 +10,7 @@ var votes = {};
 function initTimer() {
     updateMainTable();
     // call this method repeatedly.
-    setTimeout(initTimer, 10000);
+    setTimeout(initTimer, 20000);
 }
 
 function updatePieChart(old_results,old_total,new_results,new_total) {
