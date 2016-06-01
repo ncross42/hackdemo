@@ -13,7 +13,7 @@ from flask import send_from_directory
 #from flask import Markup
 app = Flask(__name__, static_url_path='', template_folder='t')
 
-DATABASE = 'db.sqlite'
+DATABASE = 'db/db.sqlite'
 ISSUE = "담배값 1만원 인상"
 
 @app.before_request
